@@ -1,0 +1,109 @@
+.snippet-details-sidebar md-content .code-container .snippet-code {
+  overflow: auto;
+  min-height: 300px;
+}
+
+.snippet-details-sidebar md-content .code-container .ace_cursor-layer,
+.snippet-details-sidebar md-content .code-container .ace_hidden-cursors {
+  display: none;
+}
+
+.snippet-details-sidebar md-content .code-container .ace_scroller {
+  cursor: pointer;
+}
+
+.snippet-details-container {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  bottom: 0;
+  width: 85%;
+  background: #fff;
+  height: calc(100vh - 50px);
+  margin: 0 auto;
+  transition: 1s all;
+}
+
+.md-sidenav-right {
+  top: 50px;
+  width: 85%;
+}
+
+@media (min-width: 600px) {
+  md-sidenav {
+    max-width: 85%;
+  }
+}
+
+@media (max-width: 600px) {
+  md-sidenav {
+    max-width: 85%;
+  }
+}
+
+md-toolbar:not(.md-menu-toolbar) {
+  background-color: #181818;
+  color: #fff;
+}
+
+.shareable-icons span {
+  margin-right: 20px;
+  cursor: pointer;
+}
+
+.shareable-icons span:hover {
+  fill: #5CAEE9;
+  -webkit-text-fill-color: #5CAEE9;
+}
+
+.shareable-icons .isStarred {
+  fill: #5CAEE9;
+  -webkit-text-fill-color: #5CAEE9;
+}
+
+.shareable-icons .share-redirect {
+  text-decoration: none;
+  color: inherit;
+}
+
+.buttons-container {
+  margin-left: 8px;
+}
+
+.buttons-container .md-button.md-default-theme.md-accent, .buttons-container .md-button.md-accent {
+  color: #5CAEE9;
+  border: 1px solid #5CAEE9;
+}
+
+.snippet-details-description {
+  padding: 20px;
+  border-bottom: 1px solid #ccc;
+}
+
+.snippet-details-description .snippet-details-buttons {
+  position: relative;
+  display: inline-block;
+  font-size: 0;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.snippet-details-description .snippet-details-buttons .edit-snippet {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+  margin-left: 0;
+  padding: 4px 9px;
+}
+
+.snippet-details-description .snippet-details-buttons .delete-snippet {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  margin-left: -1px;
+  padding: 4px;
+}
+
+.snippet-details-description .snippet-details-buttons .edit-snippet,
+.snippet-details-description .snippet-details-buttons .delete-snippet {
+  background-color: white;
+  border: 1px solid #ccc;
+}

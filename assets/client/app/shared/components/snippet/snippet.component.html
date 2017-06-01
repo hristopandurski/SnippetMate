@@ -1,0 +1,18 @@
+<md-card md-theme="default" md-theme-watch="" class="_md md-default-theme">
+    <md-card-title>
+        <md-card-title-text>
+            <span class="md-headline">{{scc.snippet.title}}</span>
+            <div class="md-subhead"><span class="clock-icon icon-ic_schedule_black_24px"></span>Created {{scc.snippet.created | dateRange}}</div>
+        </md-card-title-text>
+    </md-card-title>
+    <md-card-content layout="row" layout-align="space-between" class="layout-align-space-between-stretch layout-row code-container">
+        <div class="card-media snippet-code snippet-card">{{scc.snippet.code}}</div>
+        <md-card-actions layout="column" class="layout-column"></md-card-actions>
+    </md-card-content>
+    <md-card-footer layout="row" layout-wrap>
+        <div class="label-container font-xs" ng-repeat="label in scc.snippet.labels">
+            <div class="label-icon" ng-style="{'background-color': label.color}"></div>
+            <span class="label-title">{{ label.title }}</span>
+        </div>
+    </md-card-footer>
+</md-card>

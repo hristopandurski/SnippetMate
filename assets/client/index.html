@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html ng-cloak>
+    <head>
+        <meta charset="utf-8">
+        <title>SnippetMate</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta property="og:url"                content="https://mentormate.com/about/" />
+        <meta property="og:type"               content="article" />
+        <meta property="og:title"              content="My latest snippet" />
+        <meta property="og:description"        content="SnippetMate" />
+        <meta property="og:image"              content="https://www.mentormate.bg//wp-content/uploads/2017/01/MM_logo.png" />
+        <base href="/" />
+		<link rel="stylesheet" href="/node_modules/angular-material/angular-material.css">
+        <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+        <link rel="stylesheet" href="/wwwroot/css/site.css">
+        <link rel="stylesheet" href="./node_modules/perfect-scrollbar/dist/css/perfect-scrollbar.min.css">
+        <link rel="stylesheet" href="./node_modules/remodal/dist/remodal.css"/>
+        <link rel="stylesheet" href="./node_modules/remodal/dist/remodal-default-theme.css">
+        <link rel="stylesheet" href="./node_modules/angular-color-picker/angular-color-picker.css"></link>
+    </head>
+    <body>
+        <main ui-view ng-controller="HomeController as vm"></main>
+
+        <div id="fb-root"></div>
+        <script src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8"></script>
+
+        <script src="./node_modules/jquery/dist/jquery.min.js"></script>
+        <script src="./node_modules/angular/angular.js"></script>
+        <script src="./node_modules/angular-animate/angular-animate.min.js"></script>
+        <script src="./node_modules/angular-aria/angular-aria.min.js"></script>
+        <script src="./node_modules/angular-material/angular-material.min.js"></script>
+        <script src="./node_modules/angular-ui-router/release/angular-ui-router.js"></script>
+        <script src="./node_modules/perfect-scrollbar/dist/js/perfect-scrollbar.jquery.min.js"></script>
+        <script src="./node_modules/remodal/dist/remodal.min.js"></script>
+        <script src="./node_modules/angular-color-picker/angular-color-picker.js"></script>
+        <script src="./node_modules/ace-builds/src-min-noconflict/ace.js"></script>
+
+        <script src="app/shared/services/localstorage.service.js"></script>
+        <script src="app/shared/services/user.service.js"></script>
+        <script src="app/shared/services/auth.service.js"></script>
+        <script src="app/shared/services/lang.service.js"></script>
+        <script src="app/shared/services/interceptor.service.js"></script>
+        <script src="app/shared/services/encoder.service.js"></script>
+        <script src="app/shared/services/snippet.service.js"></script>
+        <script src="app/shared/services/label.service.js"></script>
+        <script src="app/shared/services/starred.service.js"></script>
+
+        <script src="app/shared/components/snippet/snippet.component.js"></script>
+        <script src="app/shared/components/labels-modal/labels-modal.component.js"></script>
+        <script src="app/shared/components/new-snippet-modal/new-snippet-modal.component.js"></script>
+        <script src="app/shared/components/edit-snippet/edit-snippet.component.js"></script>
+
+        <script src="app/login/login.controller.js"></script>
+        <script src="app/register/register.controller.js"></script>
+        <script src="app/snippet-details/snippet-details.controller.js"></script>
+        <script src="app/home/home.controller.js"></script>
+
+        <script src="app/shared/filters/dateRange.js"></script>
+
+        <script src="./app/app.module.js"></script>
+    </body>
+</html>

@@ -1,0 +1,73 @@
+/*Generate font sizes*/
+.font-xs {
+  font-size: 12px;
+}
+
+.font-sm {
+  font-size: 14px;
+}
+
+.font-md {
+  font-size: 18px;
+}
+
+.font-lg {
+  font-size: 23px;
+}
+
+.font-xlg {
+  font-size: 30px;
+}
+
+.loader-spinner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+  width: 30px;
+  height: 30px;
+  background: url("../../app/assets/img/spinner.svg") no-repeat center center;
+  -webkit-animation: spinnerRotate 2s infinite linear;
+  animation: spinnerRotate 2s infinite linear;
+}
+
+.form-control {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+.form-control:focus {
+  outline: 0;
+  box-shadow: inset 0 2px 2px rgba(0, 0, 0, 0.075), 3px 3px 8px rgba(0, 0, 0, 0.075);
+}
+
+.error-message {
+  color: #f16364;
+  margin-top: 10px;
+}
+
+.invalid-field {
+  border: 1px solid #f16364;
+}
+
+.label-container {
+  margin-right: 6px;
+}
+
+.label-container .label-title {
+  margin-left: 2px;
+  margin-top: 1px;
+  float: left;
+}
+
+.label-icon {
+  height: 15px;
+  width: 15px;
+  border-radius: 4px;
+  display: inline-block;
+  float: left;
+}

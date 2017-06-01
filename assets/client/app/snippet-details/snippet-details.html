@@ -1,0 +1,48 @@
+<section class="snippet-details-sidebar">
+    <md-sidenav class="md-sidenav-right" md-component-id="right" md-disable-backdrop md-whiteframe="4">
+      <md-toolbar class="md-theme-indigo">
+          <section class="flex row">
+              <h1 class="md-toolbar-tools">{{vm.snippet.title}}</h1>
+              <div class="shareable-icons flex row align-center">
+                <span class="icon-ic_star_black_24px font-lg" ng-click="vm.starSnippet($event)" ng-class="{'isStarred': vm.isStarred}"></span>
+                <div class="fb-share-button" data-href="https://mentormate.com/about/" data-layout="button_count"
+                    data-mobile-iframe="true">
+                    <a class="fb-xfbml-parse-ignore share-redirect" target="_blank"
+                    href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fmentormate.com%2Fabout%2F&amp;src=sdkpreparse">
+                        <span class="icon-facebook font-lg"></span>
+                    </a>
+                </div>
+                <a class="share-redirect" ng-click="vm.snippetTweet()">
+                <span class="icon-twitter font-lg"></span></a>
+              </div>
+          </section>
+      </md-toolbar>
+      <md-content ng-show="!vm.editingSnippet">
+        <section class="snippet-details-description flex row justify-space-between align-center">
+            <div>
+                {{vm.snippet.description}}
+            </div>
+            <div class="snippet-details-buttons">
+                <button class="edit-snippet font-sm" ng-click="vm.isEditing()">
+                    <span class="icon-edit font-sm"></span>
+                    <span>Edit</span>
+                </button>
+                <button class="delete-snippet font-sm" ng-click="vm.onDelete()">
+                    <span class="icon-delete font-sm"></span>
+                    <span>Delete</span>
+                </button>
+            </div>
+        </section>
+        <section class="code-container">
+            <div id="detailed-code" class="snippet-code">
+                {{vm.snippet.code}}
+            </div>
+        </section>
+        <section class="buttons-container">
+            <md-button ng-click="vm.onClose()" class="md-accent">Exit</md-button>
+        </section>
+      </md-content>
+      <edit-snippet-component ng-show="vm.editingSnippet" snippet="vm.snippet" on-cancel="vm.onCancel()"
+                              on-edit="vm.onEdit()"></edit-snippet-component>
+    </md-sidenav>
+</section>

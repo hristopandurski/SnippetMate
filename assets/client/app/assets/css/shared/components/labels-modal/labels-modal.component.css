@@ -1,0 +1,32 @@
+.labels-container {
+  padding: 20px 0;
+}
+
+.labels-container .label-title-container {
+  margin-bottom: 20px;
+  padding-left: 20px;
+  border-bottom: 1px solid #ccc;
+}
+
+.labels-container .label-title-container .label-title {
+  margin-bottom: 20px;
+  width: 90%;
+}
+
+.labels-container .label-color-container {
+  padding-left: 20px;
+}
+
+.labels-container .label-color-container .label-color {
+  max-height: 35px;
+  margin-left: 20px;
+  color: #727373;
+}
+
+.labels-container .label-color-container .angular-color-picker {
+  border-radius: 4px;
+}
+
+.labels-container .angular-color-picker > ._hues {
+  width: 22px;
+}

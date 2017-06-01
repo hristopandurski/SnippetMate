@@ -1,0 +1,20 @@
+[{
+    "option": "Javascript",
+    "appendix": "js"
+},
+{
+    "option": "CSS",
+    "appendix": "css"
+},
+{
+    "option": "HTML",
+    "appendix": "html"
+},
+{
+    "option": "JAVA",
+    "appendix": "java"
+},
+{
+    "option": "My SQL",
+    "appendix": "mysql"
+}]

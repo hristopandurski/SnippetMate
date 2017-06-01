@@ -1,0 +1,67 @@
+html, body, main {
+    height: 100%;
+}
+
+html, body, div, span, h1, h2, h3, h4, h5, h6, p,
+blockquote, pre, a, em, img, small, strong, sub, sup,
+dl, dt, dd, ol, ul, li, fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    font-weight: inherit;
+    font-style: inherit;
+    font-size: 100%;
+    font-family: inherit;
+    vertical-align: baseline;
+}
+
+:focus {
+    outline: 0;
+}
+
+body {
+    font-family: Roboto, Noto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1;
+}
+
+ol, ul {
+    list-style: none;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+caption, th, td {
+    text-align: left;
+    font-weight: normal;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: "";
+}
+
+blockquote, q {
+    quotes: "" "";
+}
+
+/* Removing yellow background color for autocompleted inputs on Chrome */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-text-fill-color: #aae7ef !important;
+    -webkit-box-shadow: 0 0 0px 1000px #5CAEE9 inset;
+    background-color: #5CAEE9 !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+* {
+    box-sizing: border-box;
+}

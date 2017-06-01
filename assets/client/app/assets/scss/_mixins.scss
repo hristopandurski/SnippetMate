@@ -1,0 +1,9 @@
+/*Generate font sizes*/
+
+@mixin generate-sizes($class, $extra-small, $small, $medium, $large, $extra-large) {
+    .#{$class}-xs   { font-size: $extra-small; }
+    .#{$class}-sm   { font-size: $small; }
+    .#{$class}-md   { font-size: $medium; }
+    .#{$class}-lg   { font-size: $large; }
+    .#{$class}-xlg   { font-size: $extra-large; }
+}

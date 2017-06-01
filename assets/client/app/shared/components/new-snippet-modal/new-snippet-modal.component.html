@@ -1,0 +1,50 @@
+<form name="form" role="form" novalidate ng-submit="nsc.saveSnippet()">
+    <div class="new-snippet-header flex row align-center">
+        <span class="font-md">New Snippet</span>
+    </div>
+    <section class="description-container">
+        <textarea name="description" class="form-control font-sm description-textarea base-input"
+                  placeholder="Describe this snippet" rows="3" ng-model="nsc.description" required></textarea>
+        <span ng-show="form.description.$invalid && !form.description.$pristine" class="flex align-center error-message font-xs">
+            Description is required
+        </span>
+    </section>
+    <section class="new-labels-container" ng-show="nsc.labels.length">
+        <div class="flex column justify-start align-start">
+            <div class="flex align-start">
+                <md-checkbox class="flex align-center font-sm"
+                             aria-label="Select All"
+                             ng-checked="nsc.isChecked()"
+                             md-indeterminate="nsc.isIndeterminate()"
+                             ng-click="nsc.toggleAll()">
+                  <span ng-if="nsc.isChecked()">Un-</span>Select All
+                </md-checkbox>
+            </div>
+            <div layout="row" layout-wrap class="label-checkboxes font-sm">
+                <div flex="20" class="flex" ng-repeat="label in nsc.labels">
+                    <md-checkbox ng-checked="nsc.exists(label.id, nsc.selectedLabels)"
+                                 ng-click="nsc.toggle(label.id, nsc.selectedLabels)">
+                        {{ label.title }}
+                    </md-checkbox>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="new-snippet-body flex column">
+        <div class="flex row">
+            <input type="text" class="form-control font-xs base-input snippet-title" name="filename"
+                   placeholder="Filename"  ng-model="nsc.snippetTitle" ng-blur="nsc.checkTitle()" required />
+            <select class="font-sm form-control snippet-title-dropdown" ng-model="nsc.selectedLanguage" ng-click="nsc.changedLanguage()">
+                <option ng-repeat="lang in nsc.languages" value="{{lang.appendix}}">{{lang.option}}</option>
+            </select>
+        </div>
+        <div ng-show="form.filename.$invalid && !form.filename.$pristine" class="flex align-center error-message font-xs">
+            Filename is required
+        </div>
+        <div id="editor" class="form-control font-sm new-snippet-code base-input"></div>
+    </section>
+    <section class="new-snippet-footer flex row justify-end">
+        <button data-remodal-action="cancel" class="btn form-control cancel-btn">Cancel</button>
+        <button type="submit" class="btn save-btn" ng-class="{'btn-disabled': form.$invalid}" ng-disabled="form.$invalid">Save</button>
+    </section>
+</form>

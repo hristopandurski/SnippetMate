@@ -1,0 +1,57 @@
+<header class="flex align-center justify-space-around">
+    <div class="flex row align-center">
+        <div class="header-name flex">
+            <a href='/#'>SnippetMate</a>
+        </div>
+        <div class="flex">
+            <div class="search-bar-container">
+                <input type="text" class="font-xs form-control search-snippets" ng-model="searchKeyword"
+                    placeholder="Search by keyword"/>
+                <span class="icon-search font-md"></span>
+            </div>
+        </div>
+    </div>
+    <div class="flex align-end justify-end">
+        <span>{{vm.username}}</span>
+        <a class="header-sign-out" ng-click="vm.signOut()">Sign out</a>
+    </div>
+</header>
+<section class="main-container flex row full">
+    <section class="left-panel">
+        <div class="filters font-sm new-snippet-filter flex row align-center" ng-click="vm.openSnippetModal()">
+            <span class="left-panel-icon icon-ic_description_black_24px font-md"></span>
+            <span class="flex align-center" hide-md hide-sm hide-xs>New Snippet</span>
+        </div>
+        <div class="filters font-sm flex align-center filter-selected"  ng-click="vm.selectFilter($event)">
+            <span class="left-panel-icon icon-ic_list_black_24px font-md"></span>
+            <span class="flex align-center" hide-md hide-sm hide-xs>My Snippets</span>
+        </div>
+        <div class="filters font-sm flex align-center" ng-click="vm.selectFilter($event)">
+            <span class="left-panel-icon icon-ic_star_black_24px font-md"></span>
+            <span class="flex align-center" hide-md hide-sm hide-xs>Starred</span>
+        </div>
+        <div class="filters font-sm labels-filter flex align-center" ng-click="vm.openLabelsModal()">
+            <span class="left-panel-icon icon-ic_label_black_24px font-md"></span>
+            <span class="flex align-center" hide-md hide-sm hide-xs>New Label</span>
+        </div>
+        <div class="labels font-sm flex align-center" ng-repeat="label in vm.labels" ng-click="vm.selectFilter($event)">
+            <span class="left-panel-icon label-icon" ng-style="{'background-color': label.color}"></span>
+            <span hide-md hide-sm hide-xs>{{ label.title }}</span>
+        </div>
+    </section>
+    <section class="right-panel perfect-scrollbar-container">
+        <md-content class="md-padding">
+            <snippet-component snippet="snippet" ng-repeat="snippet in vm.snippets | filter: searchKeyword"
+                ui-sref="snippet-details({'id': snippet.id})"></snippet-component>
+        </md-content>
+        <div ng-show="!vm.snippets.length" class="no-snippets">No Snippets available.</div>
+    </section>
+</section>
+
+<div ui-view></div>
+
+<section class="remodal" id="new-snippet-modal" data-remodal-id="new-snippet-modal">
+    <new-snippet-component on-create="vm.filterUserSnippets()"></new-snippet-component>
+</section>
+
+<labels-component on-create="vm.filterUserLabels()"></labels-component>

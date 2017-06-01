@@ -1,0 +1,119 @@
+@import '../assets/scss/_variables.scss';
+
+.snippet-details-sidebar {
+    md-content {
+        .code-container {
+            .snippet-code {
+                overflow: auto;
+                min-height: 300px;
+            }
+
+            .ace_cursor-layer,
+            .ace_hidden-cursors {
+                display: none;
+            }
+
+            .ace_scroller {
+                cursor: pointer;
+            }
+        }
+    }
+}//TEST
+
+.snippet-details-container {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    bottom: 0;
+    width: 85%;
+    background: #fff;
+    height: calc(100vh - 50px);
+    margin: 0 auto;
+    transition: 1s all;
+}
+
+.md-sidenav-right {
+    top: 50px;
+    width: 85%;
+}
+
+@media (min-width: 600px) {
+    md-sidenav {
+        max-width: 85%;
+    }
+}
+
+@media (max-width: 600px) {
+    md-sidenav {
+        max-width: 85%;
+    }
+}
+
+md-toolbar:not(.md-menu-toolbar) {
+    background-color: $left-panel-black;
+    color: #fff;
+}
+
+.shareable-icons {
+    span {
+        margin-right: 20px;
+        cursor: pointer;
+
+        &:hover {
+            fill: $main-color;
+            -webkit-text-fill-color: $main-color;
+        }
+    }
+
+    .isStarred {
+        fill: $main-color;
+        -webkit-text-fill-color: $main-color;
+    }
+
+    .share-redirect {
+        text-decoration: none;
+        color: inherit;
+    }
+}
+
+.buttons-container {
+    margin-left: 8px;
+
+    .md-button.md-default-theme.md-accent, .md-button.md-accent {
+        color: $main-color;
+        border: 1px solid $main-color;
+    }
+}
+
+.snippet-details-description {
+    padding: 20px;
+    border-bottom: 1px solid #ccc;
+
+    .snippet-details-buttons {
+        position: relative;
+        display: inline-block;
+        font-size: 0;
+        vertical-align: middle;
+        white-space: nowrap;
+
+        .edit-snippet {
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+            margin-left: 0;
+            padding: 4px 9px;
+        }
+
+        .delete-snippet {
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+            margin-left: -1px;
+            padding: 4px;
+        }
+
+        .edit-snippet,
+        .delete-snippet {
+            background-color: white;
+            border: 1px solid #ccc;
+        }
+    }
+}

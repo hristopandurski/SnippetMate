@@ -1,0 +1,44 @@
+<div class="login-wrapper">
+    <form name="form" ng-submit="vm.register()" role="form" novalidate>
+        <div layout="column" layout-align="center" class="login-container">
+            <md-toolbar id="login-header">
+                <div class="flex align-center column">
+                    <h2 class="font-xlg">Welcome!</h2>
+                    <div class="font-md">Register</div>
+                </div>
+            </md-toolbar>
+            <div ng-if="vm.dataLoading" class="loader-spinner"></div>
+            <div class="flex align-center column login-inner-container">
+                <md-input-container>
+                    <label for="input_03">Enter your username:</label>
+                    <input type="text" id="input_03" name="username" class="md-input" ng-model="vm.username" required />
+                    <span ng-show="form.username.$invalid && !form.username.$pristine" class="font-xs">
+                        Username is required
+                    </span>
+                </md-input-container>
+                <md-input-container>
+                    <label for="input_04">Enter your password:</label>
+                    <input type="password" id="input_04" name="password" class="md-input" ng-model="vm.password" required />
+                    <span ng-show="form.password.$invalid && !form.password.$pristine" class="font-xs">
+                        Password is required
+                    </span>
+                </md-input-container>
+                <span ng-show="vm.registerError" ng-bind="vm.errorMsg" class="font-xs login-error"></span>
+                <md-button class="md-fab md-ink-ripple" type="submit" ng-class="{'btn-disabled': form.$invalid}" ng-disabled="vm.dataLoading || form.$invalid">
+                    <md-icon>
+                        <svg fill="#000000" viewBox="0 0 24 24" width="24" height="24">
+                            <path fill="none" d="M 0 0 h 24 v 24 H 0 Z" />
+                            <path d="M 9 16.2 L 4.8 12 l -1.4 1.4 L 9 19 L 21 7 l -1.4 -1.4 L 9 16.2 Z" />
+                        </svg>
+                    </md-icon>
+                    <div class="md-ripple-container"></div>
+                </md-button>
+            </div>
+            <div class="flex justify-center align-center column login-bottom-text font-sm">
+                <p>You already have an account?</p>
+                <p>Please <a ui-sref="login" class="register-word">Login</a> then.</p>
+            </div>
+        </div>
+        <div class="login-shadow-circle"></div>
+    </form>
+</div>

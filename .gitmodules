@@ -1,3 +1,3 @@
-[submodule "SnippetMate"]
-	path = SnippetMate
+[submodule "assets/client"]
+	path = assets/client
 	url = git@gitlab.mentormate.bg:hristo.pandurski/SnippetMate.git

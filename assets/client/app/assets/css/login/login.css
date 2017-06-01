@@ -1,0 +1,95 @@
+.login-wrapper {
+  position: absolute;
+  top: 12%;
+  left: 40%;
+}
+
+@media all and (max-width: 1440px) {
+  .login-wrapper {
+    top: 0;
+  }
+}
+
+.login-container {
+  position: relative;
+  background-color: #5CAEE9;
+  margin: 8% auto;
+  width: 375px;
+  color: #aae7ef;
+  z-index: 2;
+  box-shadow: 0px 1px 7px 1px #5CAEE9;
+}
+
+.login-container md-input-container {
+  width: 80%;
+}
+
+.login-container md-input-container .md-input {
+  color: #aae7ef;
+  border-color: #aae7ef;
+  margin-bottom: 10px;
+}
+
+.login-container md-input-container .md-input:focus {
+  border-color: #f4ff81;
+}
+
+.login-container md-input-container label {
+  color: #aae7ef;
+}
+
+.login-container md-input-container:not(.md-input-invalid).md-input-focused label {
+  color: #f4ff81;
+}
+
+.login-container .md-button.md-fab {
+  background-color: #f4ff81;
+  cursor: pointer;
+}
+
+.login-container .md-button.md-fab:hover {
+  background-color: #f4ff81;
+}
+
+.login-container .login-bottom-text {
+  margin: 50px 0;
+}
+
+@media all and (max-width: 1440px) {
+  .login-container .login-bottom-text {
+    margin: 40px 0;
+  }
+}
+
+.login-container .login-bottom-text .register-word {
+  color: #f4ff81;
+  cursor: pointer;
+}
+
+.login-container .login-bottom-text p:first-of-type {
+  padding-bottom: 10px;
+}
+
+.login-container .login-error {
+  margin-bottom: 10px;
+}
+
+#login-header {
+  background-color: #5CAEE9;
+  color: #fff;
+  margin-top: 65px;
+}
+
+#login-header > div {
+  margin: 50px auto;
+}
+
+@media all and (max-width: 1440px) {
+  #login-header > div {
+    margin: 30px 0;
+  }
+}
+
+#login-header > div div {
+  margin-top: 20px;
+}

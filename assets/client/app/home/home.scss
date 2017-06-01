@@ -1,0 +1,128 @@
+@import '../assets/scss/_variables.scss';
+
+header {
+    background-color: $main-color;
+    color: #fff;
+    height: 50px;
+
+    .header-name {
+        flex: 0 1 31%;
+
+        a {
+            text-decoration: none;
+            color: #fff;
+            margin-left: 20px;
+
+            @media (max-width: 800px) {
+                display: none;
+            }
+        }
+    }
+
+    .header-sign-out {
+        margin: 0 20px;
+        padding-left: 20px;
+        border-left: 1px solid #fff;
+        cursor: pointer;
+    }
+
+    .search-bar-container {
+        position: relative;
+
+        .search-snippets {
+            padding: 8px 11px;
+            width: 270px;
+        }
+
+        .icon-search {
+            position: absolute;
+            right: 0;
+            top: 1px;
+            color: #000;
+            padding: 6px 10px;
+            border-left: 1px solid #E3E3E3;
+            cursor: pointer;
+        }
+    }
+}
+
+.main-container {
+    height: calc(100% - 50px);
+}
+
+.left-panel {
+    background-color: $left-panel-black;
+    flex: 0 1 15%;
+    transition: all 1s;
+
+    .filters {
+        height: 40px;
+        border-top: 1px solid #212121;
+        border-bottom: 1px solid #0a0c0e;
+        color: #fff;
+        cursor: pointer;
+
+        &:hover {
+            background-color: #111111;
+        }
+
+        @media (max-width: 1280px) {
+            justify-content: center;
+        }
+
+        .left-panel-icon {
+            margin-left: 20px;
+            margin-right: 10px;
+
+            @media (max-width: 1280px) {
+                margin-left: 0;
+            }
+        }
+
+        span {
+            &:last-of-type {
+                margin-top: 2px;
+            }
+        }
+    }
+
+    .filter-selected {
+        background-color: #fff;
+        color: #000;
+
+        &:hover {
+            background-color: #fff;
+            color: #000;
+        }
+    }
+
+    .labels {
+        @extend .filters;
+    }
+
+    .new-snippet-filter {
+        margin-top: 20px;
+        margin-bottom: 50px;
+    }
+
+    .labels-filter {
+        margin-top: 50px;
+    }
+}
+
+.right-panel {
+    background-color: $tertiary-color;
+    flex: 0 1 85%;
+    max-height: calc(100vh - 50px);
+    position: relative;
+    overflow: hidden;
+
+    md-content {
+        background: $tertiary-color;
+    }
+
+    .no-snippets {
+        text-align: center;
+        color: $left-panel-black;
+    }
+}

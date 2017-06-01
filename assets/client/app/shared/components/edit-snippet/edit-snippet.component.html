@@ -1,0 +1,52 @@
+<form name="form" role="form" novalidate>
+    <section class="description-container">
+        <textarea name="description" class="form-control font-sm description-textarea base-input"
+                  placeholder="Describe this snippet" rows="3" required ng-model="esc.data.description"></textarea>
+        <span ng-show="form.description.$invalid && !form.description.$pristine" class="flex align-center error-message font-xs">
+            Description is required
+        </span>
+    </section>
+    <section class="new-labels-container">
+        <div class="flex column justify-start align-start">
+            <div class="flex align-start">
+                <md-checkbox class="flex align-center font-sm"
+                             aria-label="Select All"
+                             ng-checked="esc.isChecked()"
+                             md-indeterminate="esc.isIndeterminate()"
+                             ng-click="esc.toggleAll()">
+                  <span ng-if="esc.isChecked()">Un-</span>Select All
+                </md-checkbox>
+            </div>
+            <div layout="row" layout-wrap class="label-checkboxes font-sm">
+                <div flex="10" class="flex" ng-repeat="label in esc.labels">
+                    <md-checkbox ng-checked="esc.exists(label.id, esc.selectedLabels)"
+                                 ng-click="esc.toggle(label.id, esc.selectedLabels)">
+                        {{ label.title }}
+                    </md-checkbox>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="new-snippet-body flex column">
+        <div class="flex row">
+            <input type="text" class="form-control font-xs base-input snippet-title" name="filename"
+                   placeholder="Filename"  ng-model="esc.data.title" ng-blur="esc.checkTitle()" required />
+            <select class="font-sm form-control snippet-title-dropdown edit-title-dropdown" ng-model="esc.data.language"
+                    ng-click="esc.changedLanguage()">
+                <option ng-repeat="lang in esc.languages" value="{{lang.appendix}}">{{lang.option}}</option>
+            </select>
+        </div>
+        <div ng-show="form.filename.$invalid && !form.filename.$pristine" class="flex align-center error-message font-xs">
+            Filename is required
+        </div>
+        <div id="edit-code-box" class="form-control font-sm new-snippet-code base-input">{{esc.data.code}}</div>
+        <span ng-show="form.code.$invalid && !form.code.$pristine" class="flex align-center error-message font-xs">
+            Code is required
+        </span>
+    </section>
+    <div class="new-snippet-footer flex row justify-end">
+        <button class="btn form-control cancel-btn" ng-click="esc.cancel()">Cancel</button>
+        <button type="submit" class="btn save-btn" ng-class="{'btn-disabled': form.$invalid}"
+                ng-disabled="form.$invalid" ng-click="esc.edit()">Save</button>
+    </div>
+</form>

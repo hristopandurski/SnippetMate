@@ -1,0 +1,80 @@
+@import '../../../assets/scss/_variables.scss';
+
+.remodal-wrapper {
+    .remodal {
+        padding: 0;
+    }
+}
+
+.new-labels-container {
+    padding: 0 20px 20px 20px;
+
+    md-checkbox {
+        .md-label {
+           color: #727373;
+           margin-top: 3px;
+        }
+    }
+
+    .label-checkboxes {
+        margin-left: 20px;
+        width: 100%;
+    }
+}
+
+md-checkbox.md-default-theme.md-checked .md-icon,
+md-checkbox.md-checked .md-icon {
+    background: $main-color;
+}
+
+md-checkbox.md-default-theme.md-checked .md-ink-ripple,
+md-checkbox.md-checked .md-ink-ripple {
+    color: $main-color;
+}
+
+.new-snippet-header {
+    background-color: $tertiary-color;
+    padding: 20px;
+    border-bottom: 1px solid #ccc;
+}
+
+.description-container {
+    padding: 20px;
+}
+
+.description-textarea {
+    width: 100%;
+    resize: none;
+    color: #727373;
+}
+
+.new-snippet-body {
+    border-top: 1px solid #ccc;
+    padding: 20px;
+
+    .snippet-title {
+        width: 150px;
+        margin-right: 5px;
+    }
+
+    .snippet-title-dropdown {
+        padding: 4px 7px 4px 1px;
+    }
+
+    .new-snippet-code {
+        width: 100%;
+        min-height: 200px;
+        margin-top: 15px;
+        overflow: hidden;
+    }
+}
+
+.new-snippet-footer {
+    background-color: $tertiary-color;
+    padding: 20px;
+    border-top: 1px solid #ccc;
+
+    .cancel-btn {
+        padding: 5px 15px;
+    }
+}

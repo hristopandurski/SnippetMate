@@ -1,0 +1,1 @@
+{"version":3,"sources":["edit-snippet.component.css"],"names":[],"mappings":"AAAA,eACE,yBAA2B,CAC5B","file":"edit-snippet.component.css","sourcesContent":["#edit-code-box {\n  height: calc(60vh - 110px);\n}\n"]}

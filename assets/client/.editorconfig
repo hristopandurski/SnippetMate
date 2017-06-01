@@ -1,0 +1,30 @@
+# This file is for unifying the coding style for different editors and IDEs
+# see editorconfig.org for more information
+
+root = true
+
+[*]
+# dependes on the OS and editor configuration,
+# normaly it's crlf for windows, lf for linux
+# normally git is configured in windows to check-out as windows
+# and check-in as linux
+# because servers are on linux
+# end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+
+[**.md]
+trim_trailing_whitespace = false
+
+[**.yml]
+indent_size = 2
+
+## Commenting out below in case we ever want to customize per filetype
+# [**.js]
+# indent_size = 4
+
+# [**.css]
+# indent_size = 4
