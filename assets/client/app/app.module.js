@@ -51,5 +51,6 @@
                 });
 
             $httpProvider.interceptors.push('myHttpInterceptor');
+
         });
 })();

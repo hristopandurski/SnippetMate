@@ -8,7 +8,7 @@
 'use strict';
 
 module.exports = {
-    index: function(req, res) {
-        res.redirect('/client');
-    }
+    // serve: function(req, res) {
+    //     return res.view(__dirname + '/../assets/client/index');
+    // }
 };
