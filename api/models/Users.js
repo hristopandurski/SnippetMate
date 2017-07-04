@@ -8,14 +8,18 @@
 module.exports = {
 
     attributes: {
-        id: {
-            type: 'integer'
-        },
         username: {
-            type: 'string'
+            type: 'string',
+            required: true
         },
         password: {
-            type: 'string'
+            type: 'string',
+            required: true
+        },
+        toJSON: function() {
+            var obj = this.toObject();
+            delete obj.password;
+            return obj;
         }
     }
 };

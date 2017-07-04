@@ -1,64 +1,64 @@
 (function() {
     angular.module('app.services.user', []).service('UserService', UserService);
 
-    UserService.$inject = ['$timeout', '$filter', '$q'];
+    UserService.$inject = ['$timeout', '$filter', '$q', '$http'];
 
-    function UserService($timeout, $filter, $q) {
+    function UserService($timeout, $filter, $q, $http) {
         var self = this;
 
         self.GetById = (id) => {
-            var deferred = $q.defer(),
-                filtered = $filter('filter')(self.getUsers(), {id: id}),
-                user = filtered.length ? filtered[0] : null;
+            var deferred = $q.defer();
 
-            deferred.resolve(user);
+            $http({
+                method: 'GET',
+                url: '/users/show',
+                data: id
+            }).then(function(user) {
+                return user;
+            });
+        };
+
+        self.GetByUsername = (user) => {
+            var deferred = $q.defer();
+
+            $http({
+                method: 'GET',
+                url: '/users/show',
+                params: user
+            }).then(function(user) {
+
+                return deferred.resolve(user.data);
+            }, function(err) {
+
+                return deferred.reject(err);
+            });
+
             return deferred.promise;
         };
 
         self.GetAll = () => {
-            var deferred = $q.defer();
-            deferred.resolve(self.getUsers());
-
-            return deferred.promise;
+            $http({
+                method: 'GET',
+                url: '/users/showAll'
+            }).then(function(users) {
+                return users;
+            });
         };
 
         self.Add = (user) => {
             var deferred = $q.defer();
 
-            // simulate api call with $timeout
-            $timeout(function() {
-                self.GetByUsername(user.username)
-                    .then(function(duplicateUser) {
-                        if (duplicateUser !== null) {
-                            deferred.resolve({
-                                success: false,
-                                message: 'Username "' + user.username + '" is already taken'
-                            });
-                        } else {
-                            var users = self.getUsers();
+            $http({
+                method: 'POST',
+                url: '/users/create',
+                params: user
+            }).then(function(res) {
+                return deferred.resolve(res);
+            }, function(err) {
 
-                            // assign id
-                            var lastUser = users[users.length - 1] || {id: 0};
-                            user.id = lastUser.id + 1;
+                return deferred.reject(err);
+            });
 
-                            // save to local storage
-                            users.push(user);
-                            self.setUsers(users);
-
-                            deferred.resolve({success: true});
-                        }
-                    });
-            }, 1000);
-
-            return deferred.promise;
-        };
-
-        self.GetByUsername = (username) => {
-            var deferred = $q.defer();
-            var filtered = $filter('filter')(self.getUsers(), {username: username});
-            var user = filtered.length ? filtered[0] : null;
-
-            deferred.resolve(user);
             return deferred.promise;
         };
     }

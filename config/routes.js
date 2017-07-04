@@ -32,7 +32,11 @@ module.exports.routes = {
     *                                                                          *
     ***************************************************************************/
 
-    //'/': {view: '/index'}
+    'POST /users/create': 'UsersController.create',
+    'GET /users/show': 'UsersController.show',
+    'GET /users/showById': 'UsersController.showById',
+    'GET /users/showAll': 'UsersController.showAll'
+
     /***************************************************************************
     *                                                                          *
     * Custom routes here...                                                    *
