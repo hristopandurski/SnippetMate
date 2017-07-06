@@ -37,12 +37,19 @@
         };
 
         self.GetAll = () => {
+            var deferred = $q.defer();
+
             $http({
                 method: 'GET',
                 url: '/users/showAll'
             }).then(function(users) {
-                return users;
+                return deferred.resolve(users);
+            }, function(err) {
+
+                return deferred.reject(err);
             });
+
+            return deferred.promise;
         };
 
         self.Add = (user) => {

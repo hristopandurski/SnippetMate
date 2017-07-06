@@ -26,7 +26,7 @@
                             if (res.error) {
                                 UserService.Add(user)
                                     .then(function(res) {
-                                        $location.path('/');
+                                        $location.path('/login');
                                     }, function(err) {
 
                                         throw err;
