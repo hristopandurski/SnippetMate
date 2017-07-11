@@ -59,10 +59,11 @@
                 method: 'POST',
                 url: '/users/create',
                 params: user
-            }).then(function(res) {
+            })
+            .then(function(res) {
                 return deferred.resolve(res);
-            }, function(err) {
-
+            })
+            .catch(function(err) {
                 return deferred.reject(err);
             });
 

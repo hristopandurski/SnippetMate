@@ -20,28 +20,40 @@
             };
 
             // check if a username with the same details already exists
-            UserService.GetByUsername(user)
-                        .then(function(res) {
-                            // if user doesn't exist, add the user to the db
-                            if (res.error) {
-                                UserService.Add(user)
-                                    .then(function(res) {
-                                        $location.path('/login');
-                                    }, function(err) {
+            // UserService.GetByUsername(user)
+            //             .then(function(res) {
+            //                 // if user doesn't exist, add the user to the db
+            //                 if (res.error) {
+            //                     UserService.Add(user)
+            //                         .then(function(res) {
+            //                             $location.path('/login');
+            //                         })
+            //                         .catch(function(res) {
+            //                             vm.errorMsg = res.error;
+            //                         });
+            //
+            //                 // if user exists, display error message
+            //                 } else {
+            //                     vm.dataLoading = false;
+            //                     vm.registerError = true;
+            //                     vm.errorMsg = 'Username "' + user.username + '" is already taken';
+            //                 }
+            //             })
+            //             .catch(function(res) {
+            //                 vm.errorMsg = res.error;
+            //             });
 
-                                        throw err;
-                                    });
-
-                            // if user exists, display error message
-                            } else {
-                                vm.dataLoading = false;
-                                vm.registerError = true;
-                                vm.errorMsg = 'Username "' + user.username + '" is already taken';
-                            }
-                        }, function(err) {
-
-                            throw err;
-                        });
+            UserService.Add(user)
+                .then(function(res) {
+                    $location.path('/login');
+                })
+                .catch(function(res) {
+                    vm.registerError = true;
+                    vm.errorMsg = 'Username "' + user.username + '" is already taken';
+                })
+                .finally(function() {
+                    vm.dataLoading = false;
+                });
         }
     }
 })();
