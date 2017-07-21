@@ -3,13 +3,13 @@
 
     angular.module('app.home', ['app.components.snippet', 'app.components.labels', 'app.components.new-snippet',
                                 'app.services.authentication', 'app.snippet-details', 'app.services.snippet',
-                                'app.services.label', 'app.services.starred', 'ngMaterial'])
+                                'app.services.label', 'app.services.user', 'app.services.starred', 'ngMaterial'])
             .controller('HomeController', HomeController);
 
-    HomeController.$inject = ['$scope', '$location', '$filter', '$mdSidenav', 'AuthenticationService', 'SnippetService',
-                             'LabelService', 'StarredService'];
+    HomeController.$inject = ['$scope', '$location', '$filter', '$mdSidenav', 'AuthenticationService', 'UserService',
+                            'SnippetService', 'LabelService', 'StarredService'];
 
-    function HomeController($scope, $location, $filter, $mdSidenav, AuthenticationService, SnippetService,
+    function HomeController($scope, $location, $filter, $mdSidenav, AuthenticationService, UserService, SnippetService,
                             LabelService, StarredService) {
         var vm = this,
             modalOptions = {
@@ -24,27 +24,29 @@
 
         vm.AuthenticationService = AuthenticationService;
 
-        vm.filterUserSnippets = () => {
-            var user = AuthenticationService.GetCurrentUser(),
-                authdata = user.authdata;
+        vm.UserService = UserService;
 
-            // filter all the snippets that are not created by the logged in user
+        vm.filterUserSnippets = () => {
+
             SnippetService.getSnippets()
-                        .then(function(data) {
-                            vm.snippets = $filter('filter')(data, {authdata: authdata});
-                        });
+                .then(function(snippets) {
+                    vm.snippets = snippets;
+                })
+                .catch(function(err) {
+                    //TODO: handle errors and show popup message
+                    console.log(err);
+                });
         };
 
         vm.filterUserLabels = () => {
-            var user = AuthenticationService.GetCurrentUser(),
-                authdata = user.authdata,
-                labels = LabelService.getLabels();
-
-            // filter all the labels that are not created by the logged in user
             LabelService.getLabels()
-                        .then(function(data) {
-                            vm.labels = $filter('filter')(data, {authdata: authdata});
-                        });
+                .then(function(labels) {
+                    vm.labels = labels;
+                })
+                .catch(function(err) {
+                    //TODO: handle errors and show popup message
+                    console.log(err);
+                });
         };
 
         vm.selectFilter = (event) => {
@@ -104,15 +106,23 @@
         };
 
         vm.signOut = () => {
-            $location.path('/login');
+            AuthenticationService.Logout()
+                .then(function() {
+                    $location.path('/login');
+                })
+                .catch(function(err) {
+                    console.log(err.status + ' ' + err.statusText);
+                    $location.path('/login');
+                });
         };
 
         vm.$onInit = () => {
             vm.initCustomScrollbars();
             vm.filterUserSnippets();
             vm.filterUserLabels();
-            vm.getUsername();
+            //vm.getUsername();
         };
+
     };
 
     HomeController.prototype.initCustomScrollbars = function() {
@@ -131,9 +141,14 @@
     };
 
     HomeController.prototype.getUsername = function() {
-        var authService = this.AuthenticationService,
-            user = authService.GetCurrentUser();
+        var userService = this.UserService;
 
-        this.username = user.username;
+        userService.GetById()
+        .then(function(data) {
+            this.username = data.username;
+        })
+        .catch(function(err) {
+            console.log(err);
+        });
     };
 })();

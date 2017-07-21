@@ -35,7 +35,15 @@ module.exports.routes = {
     'POST /users/create': 'UsersController.create',
     'GET /users/show': 'UsersController.show',
     'GET /users/showById': 'UsersController.showById',
-    'GET /users/showAll': 'UsersController.showAll'
+    'GET /users/showAll': 'UsersController.showAll',
+    'POST /users/remove': 'UsersController.remove',
+
+    'PUT /login': 'AuthController.login',
+    'GET /logout': 'AuthController.logout',
+
+    'GET /snippets/getSnippets': 'SnippetsController.getSnippets',
+
+    'GET /labels/getLabels': 'LabelsController.getLabels'
 
     /***************************************************************************
     *                                                                          *

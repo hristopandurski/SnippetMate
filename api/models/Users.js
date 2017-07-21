@@ -13,10 +13,12 @@ module.exports = {
             required: true,
             unique: true
         },
+
         password: {
             type: 'string',
             required: true
         },
+
         toJSON: function() {
             var obj = this.toObject();
             delete obj.password;

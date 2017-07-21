@@ -6,15 +6,18 @@
     function UserService($timeout, $filter, $q, $http) {
         var self = this;
 
-        self.GetById = (id) => {
+        self.GetById = () => {
             var deferred = $q.defer();
 
             $http({
                 method: 'GET',
-                url: '/users/show',
-                data: id
-            }).then(function(user) {
-                return user;
+                url: '/users/showById'
+            })
+            .then(function(user) {
+                return deferred.resolve(user.data);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
             });
         };
 
@@ -25,11 +28,11 @@
                 method: 'GET',
                 url: '/users/show',
                 params: user
-            }).then(function(user) {
-
+            })
+            .then(function(user) {
                 return deferred.resolve(user.data);
-            }, function(err) {
-
+            })
+            .catch(function(err) {
                 return deferred.reject(err);
             });
 
@@ -42,10 +45,11 @@
             $http({
                 method: 'GET',
                 url: '/users/showAll'
-            }).then(function(users) {
+            })
+            .then(function(users) {
                 return deferred.resolve(users);
-            }, function(err) {
-
+            })
+            .catch(function(err) {
                 return deferred.reject(err);
             });
 

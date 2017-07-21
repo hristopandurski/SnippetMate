@@ -11,23 +11,23 @@
         vm.loginError = false;
 
         vm.login = () => {
+            var user = {
+                username: vm.username,
+                password: vm.password
+            };
+
             vm.dataLoading = true;
 
-            AuthenticationService.Login(vm.username, vm.password, function(response) {
-                if (response.success) {
-                    AuthenticationService.SetCredentials(vm.username, vm.password);
-                    $location.path('/');
-                } else {
-                    vm.dataLoading = false;
-                    vm.loginError = true;
-                }
+            AuthenticationService.Login(user)
+            .then(function() {
+                $location.path('/');
+            })
+            .catch(function() {
+                vm.loginError = true;
+            })
+            .finally(function() {
+                vm.dataLoading = false;
             });
         };
-
-        // reset login status
-        vm.$onInit = () => {
-            AuthenticationService.ClearCredentials();
-        };
-
     }
 })();

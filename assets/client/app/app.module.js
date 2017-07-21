@@ -16,16 +16,8 @@
                     url: '/',
                     controller: 'HomeController',
                     templateUrl: 'app/home/home.html',
-                    controllerAs: 'vm',
-                    resolve: {
-                        init: function(AuthenticationService, $location) {
-                            var user = AuthenticationService.GetCurrentUser();
-
-                            if (user === null || !user.hasOwnProperty('authdata')) {
-                                $location.path('/login');
-                            }
-                        }
-                    }
+                    controllerAs: 'vm'
+                    //TODO: add resolve authentication
                 })
 
                 .state('snippet-details', {
@@ -50,7 +42,8 @@
                     controllerAs: 'vm'
                 });
 
-            $httpProvider.interceptors.push('myHttpInterceptor');
+            //TODO: change the interceptor's logic
+            //$httpProvider.interceptors.push('myHttpInterceptor');
 
         });
 })();

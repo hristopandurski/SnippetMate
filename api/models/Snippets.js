@@ -8,7 +8,7 @@
 module.exports = {
 
     attributes: {
-        userid: {
+        userId: {
             type: 'integer'
         },
         title: {

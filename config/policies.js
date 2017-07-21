@@ -25,8 +25,30 @@ module.exports.policies = {
     *                                                                          *
     ***************************************************************************/
 
-    //'*': 'isAjax'
+    // '*': true,
+    //
+    // 'LabelsController': {
+    //     '*': 'sessionAuth'
+    // }
 
+    //'*': 'sessionAuth',
+
+    // LabelsController: {
+    //     '*': 'sessionAuth'
+    // },
+    //
+    // SnippetsController: {
+    //     '*': 'sessionAuth'
+    // },
+    //
+    // AuthController: {
+    //     'login': ['isLoggedIn'],
+    //     'logout': ['sessionAuth']
+    // },
+    //
+    // UsersController: {
+    //     '*': 'isLoggedIn'
+    // }
     /***************************************************************************
     *                                                                          *
     * Here's an example of mapping some policies to run before a controller    *

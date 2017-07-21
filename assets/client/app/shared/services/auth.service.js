@@ -5,26 +5,44 @@
         .module('app.services.authentication', ['app.services.user', 'app.data.encoder', 'app.services.localStorage'])
         .service('AuthenticationService', AuthenticationService);
 
-    AuthenticationService.$inject = ['$timeout', 'UserService', 'Base64', 'LocalStorage'];
+    AuthenticationService.$inject = ['$timeout', '$http', '$q', 'UserService', 'Base64', 'LocalStorage'];
 
-    function AuthenticationService($timeout, UserService, Base64, LocalStorage) {
+    function AuthenticationService($timeout, $http, $q, UserService, Base64, LocalStorage) {
         var self = this;
 
-        self.Login = (username, password, callback) => {
-            /*  uses $timeout to simulate api call */
-            $timeout(function() {
-                var response;
-                UserService.GetByUsername(username)
-                    .then(function(user) {
-                        if (user !== null && user.password === password) {
-                            response = {success: true};
-                        } else {
-                            response = {success: false, message: 'Username or password is incorrect'};
-                        }
+        self.Login = (user) => {
+            var deferred = $q.defer();
 
-                        callback(response);
-                    });
-            }, 1000);
+            $http({
+                method: 'PUT',
+                url: '/login',
+                params: user
+            })
+            .then(function(res) {
+                return deferred.resolve(res);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
+
+            return deferred.promise;
+        };
+
+        self.Logout = () => {
+            var deferred = $q.defer();
+
+            $http({
+                method: 'GET',
+                url: '/logout'
+            })
+            .then(function(res) {
+                return deferred.resolve(res);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
+
+            return deferred.promise;
         };
 
         self.SetCredentials = (username, password) => {
