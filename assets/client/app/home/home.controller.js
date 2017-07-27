@@ -34,6 +34,7 @@
                 })
                 .catch(function(err) {
                     //TODO: handle errors and show popup message
+                    vm.snippets = [];
                     console.log(err);
                 });
         };
@@ -45,6 +46,8 @@
                 })
                 .catch(function(err) {
                     //TODO: handle errors and show popup message
+
+                    vm.labels = [];
                     console.log(err);
                 });
         };
@@ -117,10 +120,10 @@
         };
 
         vm.$onInit = () => {
+            vm.getUsername();
             vm.initCustomScrollbars();
             vm.filterUserSnippets();
             vm.filterUserLabels();
-            //vm.getUsername();
         };
 
     };
@@ -144,11 +147,20 @@
         var userService = this.UserService;
 
         userService.GetById()
-        .then(function(data) {
-            this.username = data.username;
+        .then(function(user) {
+            if (user.error) {
+                //TODO: show popup
+                console.log(user.errorMessage);
+                return;
+            }
+
+            this.username = user.data.username || '';
+            return;
         })
         .catch(function(err) {
+            this.username = '';
             console.log(err);
+            return;
         });
     };
 })();

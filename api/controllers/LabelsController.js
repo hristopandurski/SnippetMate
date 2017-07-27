@@ -13,7 +13,13 @@ module.exports = {
      * @param { Object }
      */
     getLabels: function(req, res) {
-        var userId =  req.session.userId;
+        var user =  req.session.user,
+            userId;
+
+        if (!!user) {
+            userId = user.id;
+            console.log('in labels controller - userId', userId);
+        }
 
         Labels.find({
             userId: userId
@@ -22,7 +28,9 @@ module.exports = {
                 return res.notFound(err);
             }
 
-            res.json(labels);
+            console.log('labels: ', labels);
+
+            return res.json(labels);
         });
     }
 };

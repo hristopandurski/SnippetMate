@@ -5,7 +5,7 @@
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
 
-var Passwords = require('machinepack-passwords');
+var passport = require('passport');
 
 module.exports = {
     /**
@@ -15,41 +15,31 @@ module.exports = {
     * @param res { Object }
     */
     login: function(req, res) {
-        console.log('authc username' + req.param('username'));
 
-        Users.findOne({username: req.param('username')}, function foundUser(err, createdUser) {
-            if (err) return res.negotiate(err);
+        passport.authenticate('local', function(err, user, info) {
+            if ((err) || (!user)) {
+                return res.send({
+                    message: info.message,
+                    user: user
+                });
+            }
 
-            if (!createdUser) return res.notFound();
+            req.logIn(user, function(err) {
+                if (err) return res.send(err);
 
-            Passwords.checkPassword({
-                passwordAttempt: req.param('password'),
-                encryptedPassword: createdUser.password
-            }).exec({
+                console.log('in AuthController req.login ' + user.username);
 
-                error: function(err) {
-                    return res.negotiate(err);
-                },
+                req.session.user = user;
 
-                incorrect: function() {
-                    return res.notFound();
-                },
-
-                success: function() {
-
-                    req.session.userId = createdUser.id;
-
-                    return res.ok();
-                }
+                return res.json({
+                    username: user.username
+                });
             });
-        });
+        })(req, res);
     },
 
     logout: function(req, res) {
-
-        // log the user-agent out.
-        req.session.userId = null;
-
-        return res.ok();
+        req.logout();
+        res.redirect('/');
     }
 };

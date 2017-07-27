@@ -22,22 +22,34 @@ passport.use(new LocalStrategy(function(username, password, done) {
             return done(null, false, {message: 'Incorrect username.'});
         }
 
-        bcrypt.compare(password, user.password, function(err, res) {
-            if (!res) {
-                return done(null, false, {
-                    message: 'Invalid Password'
-                });
-            }
+        // bcrypt.compare(password, user.password, function(err, res) {
+        //     if (!res) {
+        //         return done(null, false, {
+        //             message: 'Invalid Password'
+        //         });
+        //     }
+        //
+        //     var returnUser = {
+        //         username: user.username,
+        //         createdAt: user.createdAt,
+        //         id: user.id
+        //     };
+        //
+        //     console.log('passport js return done: ' + returnUser.username);
+        //     return done(null, returnUser, {
+        //         message: 'Logged In Successfully'
+        //     });
+        // });
 
-            var returnUser = {
-                username: user.username,
-                createdAt: user.createdAt,
-                id: user.id
-            };
+        var returnUser = {
+            username: user.username,
+            createdAt: user.createdAt,
+            id: user.id
+        };
 
-            return done(null, returnUser, {
-                message: 'Logged In Successfully'
-            });
+        console.log('passport js return done: ' + returnUser.username);
+        return done(null, returnUser, {
+            message: 'Logged In Successfully'
         });
     });
 }

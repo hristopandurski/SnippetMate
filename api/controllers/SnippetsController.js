@@ -13,7 +13,13 @@ module.exports = {
      * @param { Object }
      */
     getSnippets: function(req, res) {
-        var userId = req.session.userId;
+        var user =  req.session.user,
+            userId;
+
+        if (!!user) {
+            userId = user.id;
+            console.log('in snippets controller - userId', userId);
+        }
 
         Snippets.find({
             userId: userId
@@ -22,7 +28,7 @@ module.exports = {
                 return res.notFound(err);
             }
 
-            res.json(snippets);
+            return res.json(snippets);
         });
     }
 };

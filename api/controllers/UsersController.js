@@ -19,42 +19,26 @@ module.exports = {
      */
     create: function(req, res, next) {
 
-        // Hash password
-        Passwords.encryptPassword({
-            password: req.param('password')
-        }).exec({
+        Users.create(req.allParams()).exec(function(err, createdUser) {
+            console.log('in usercontroller1: ', createdUser.username);
+            if (err) {
+                console.log('in usercontroller2: ', createdUser.username);
 
-            error: function(err) {
-                return res.serverError(err);
-            },
+                // Check for duplicate username
+                if (err.invalidAttributes && err.invalidAttributes.username && err.invalidAttributes.username[0] &&
+                    err.invalidAttributes.username[0].rule === 'unique') {
 
-            success: function(result) {
+                    // return res.send(409, 'Username is already taken by another user, please try again.');
+                    return res.alreadyInUse(err);
+                }
 
-                var options = {
-                    username: req.param('username'),
-                    password: result
-                };
-
-                Users.create(options).exec(function(err, createdUser) {
-                    if (err) {
-                        console.log('the error is: ', err.invalidAttributes);
-
-                        // Check for duplicate username
-                        if (err.invalidAttributes && err.invalidAttributes.username && err.invalidAttributes.username[0] &&
-                            err.invalidAttributes.username[0].rule === 'unique') {
-
-                            // return res.send(409, 'Username is already taken by another user, please try again.');
-                            return res.alreadyInUse(err);
-                        }
-
-                        return res.negotiate(err);
-                    }
-
-                    return res.json({
-                        username: createdUser.username
-                    });
-                });
+                return res.negotiate(err);
             }
+
+            console.log('in usercontroller3: ', createdUser.username);
+            return res.json({
+                username: createdUser.username
+            });
         });
     },
 
@@ -88,18 +72,28 @@ module.exports = {
     * @param { Object }
      */
     showById: function(req, res) {
-        console.log(req.user);
+        var user = req.session.user,
+            params = req.allParams();
+
+        if (!!user) {
+            params.id = user.id;
+        }
+
         Users.findOne({
-            id: req.user
-        }).exec(function(err, user) {
-            console.log('in showById' + user);
+            id: params.id
+        })
+        .exec(function(err, user) {
+            if (err) return res.negotiate(err);
+
             if (!user) {
+                console.log('in showById1 - user ' + user, err);
                 return res.ok({
                     error: true,
                     errorMessage: 'User with id ' + req.user + ' does not exist in the database'
                 });
             }
 
+            console.log('in showById2 user.id= ' + user.id, err);
             res.json(user);
         });
     },
@@ -111,7 +105,7 @@ module.exports = {
     * @param { Object }
      */
     showAll: function(req, res) {
-        User.find(function(err, users) {
+        Users.find(function(err, users) {
             if (err) return next(err);
 
             return res.json(users);
@@ -129,7 +123,7 @@ module.exports = {
             return res.badRequest('id is a required parameter.');
         }
 
-        User.update({
+        Users.update({
             id: req.param('id')
         },
         {

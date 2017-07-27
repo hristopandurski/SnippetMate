@@ -16,7 +16,7 @@
                 url: '/snippets/getSnippets'
             })
             .then(function(res) {
-                return deferred.resolve(res);
+                return deferred.resolve(res.data);
             })
             .catch(function(err) {
                 return deferred.reject(err);

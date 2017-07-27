@@ -19,6 +19,8 @@
             .catch(function(err) {
                 return deferred.reject(err);
             });
+
+            return deferred.promise;
         };
 
         self.GetByUsername = (user) => {
@@ -30,7 +32,7 @@
                 params: user
             })
             .then(function(user) {
-                return deferred.resolve(user.data);
+                return deferred.resolve(user);
             })
             .catch(function(err) {
                 return deferred.reject(err);
