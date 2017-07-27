@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    angular.module('app.components.new-snippet', ['ngMaterial', 'app.services.languages', 'app.services.authentication',
+    angular.module('app.components.new-snippet', ['ngMaterial', 'app.services.languages', 'app.services.user',
                     'app.services.snippet', 'app.services.label'])
         .component('newSnippetComponent', {
             templateUrl: 'app/shared/components/new-snippet-modal/new-snippet-modal.component.html',
@@ -12,11 +12,10 @@
             }
         });
 
-    newSnippetComponentController.$inject = ['$scope', 'LanguageService', 'AuthenticationService', 'SnippetService',
+    newSnippetComponentController.$inject = ['$scope', 'LanguageService', 'UserService', 'SnippetService',
                                              'LabelService'];
 
-    function newSnippetComponentController($scope, LanguageService, AuthenticationService, SnippetService,
-                                           LabelService) {
+    function newSnippetComponentController($scope, LanguageService, UserService, SnippetService, LabelService) {
         var vm = this;
 
         vm.labelIds = [];
@@ -101,38 +100,48 @@
         };
 
         vm.saveSnippet = () => {
-            var user = AuthenticationService.GetCurrentUser(),
-                authdata = user.authdata,
-                newSnippet = {
+            var newSnippet = {
                     description: vm.description,
                     title: vm.snippetTitle,
                     code: vm.snippetCode.getValue(),
                     language: vm.selectedLanguage,
-                    created: new Date(),
-                    isStarred: false,
-                    authdata: authdata
+                    isStarred: false
                 };
 
             // assign the already selected labels to the snippet
             newSnippet.labels = vm.getSelectedLabels();
 
-            SnippetService.getSnippets()
+            if (!newSnippet.description || !newSnippet.title || !newSnippet.code || !newSnippet.language) {
+                //TODO: show error
+                return;
+            }
+
+            UserService.GetById()
+                .then(function(user) {
+                    if (!user) {
+                        // TODO: show error
+                        return;
+                    }
+
+                    // set the userId of the new snippet equal to the current user id
+                    newSnippet.userId = user.id;
+
+                    SnippetService.setSnippets(newSnippet)
                         .then(function(data) {
-                            var snippets = data;
-
-                            // assign id
-                            var lastSnippet = snippets[snippets.length - 1] || {id: 0};
-                            newSnippet.id = lastSnippet.id + 1;
-
-                            // save to local storage
-                            snippets.push(newSnippet);
-                            SnippetService.setSnippets(snippets);
-
                             $('#new-snippet-modal').remodal().close();
 
                             // call filterUserSnippets function from parent controller in order to update the shown snippets
                             vm.onCreate();
+                        })
+                        .catch(function(err) {
+                            //TODO: show error
+                            console.log(err);
                         });
+                })
+                .catch(function(err) {
+                    //TODO: show error
+                    console.log(err);
+                });
 
         };
 

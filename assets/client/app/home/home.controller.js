@@ -128,6 +128,10 @@
 
     };
 
+    /**
+     * Initialize the custom scrollbar.
+     *
+     */
     HomeController.prototype.initCustomScrollbars = function() {
         var $panel = $('.right-panel');
 
@@ -143,8 +147,13 @@
         $(window).on('resize orientationchange', updatePerfectScrollbar);
     };
 
+    /**
+     * Get the username of the logged in user.
+     *
+     */
     HomeController.prototype.getUsername = function() {
-        var userService = this.UserService;
+        var self = this,
+            userService = self.UserService;
 
         userService.GetById()
         .then(function(user) {
@@ -154,11 +163,11 @@
                 return;
             }
 
-            this.username = user.data.username || '';
+            self.username = user.username;
             return;
         })
         .catch(function(err) {
-            this.username = '';
+            self.username = '';
             console.log(err);
             return;
         });

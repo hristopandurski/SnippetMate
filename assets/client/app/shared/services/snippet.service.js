@@ -25,8 +25,22 @@
             return deferred.promise;
         };
 
-        self.setSnippets = (newValue) => {
-            LocalStorage.set('snippets', newValue);
+        self.setSnippets = (data) => {
+            var deferred = $q.defer();
+
+            $http({
+                method: 'POST',
+                url: '/snippets/create',
+                params: data
+            })
+            .then(function(res) {
+                return deferred.resolve(res.data);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
+
+            return deferred.promise;
         };
     };
 }());

@@ -66,10 +66,11 @@ module.exports = {
     },
 
     /**
-    * Find a user by id.
+    * Return current user's id..
     *
     * @param { Object }
     * @param { Object }
+    * @return { Object }
      */
     showById: function(req, res) {
         var user = req.session.user,

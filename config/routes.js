@@ -42,6 +42,7 @@ module.exports.routes = {
     'GET /logout': 'AuthController.logout',
 
     'GET /snippets/getSnippets': 'SnippetsController.getSnippets',
+    'POST /snippets/create': 'SnippetsController.create',
 
     'GET /labels/getLabels': 'LabelsController.getLabels'
 

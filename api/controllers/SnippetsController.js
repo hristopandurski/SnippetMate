@@ -7,10 +7,10 @@
 
 module.exports = {
     /**
-     * Get all snippets created by the logged in user.
+     * Gets all snippets created by the logged in user.
      *
-     * @param { Object }
-     * @param { Object }
+     * @param {object} req
+     * @param {object} res
      */
     getSnippets: function(req, res) {
         var user =  req.session.user,
@@ -29,6 +29,29 @@ module.exports = {
             }
 
             return res.json(snippets);
+        });
+    },
+
+    /**
+     * Creates a new snippet.
+     *
+     * @param {object} req
+     * @param {object} res
+     */
+    create: function(req, res) {
+        var newSnippet = req.allParams();
+
+        console.log('in snippets create:', newSnippet.description);
+
+        Snippets.create(newSnippet).exec(function(err, createdSnippet) {
+            console.log('in snippets create exec: ', createdSnippet.id);
+
+            if (err) {
+                return res.negotiate(err);
+            }
+
+            console.log('in usercontroller3: ', createdSnippet.username);
+            return res.json(createdSnippet);
         });
     }
 };
