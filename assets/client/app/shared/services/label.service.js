@@ -3,9 +3,9 @@
 
     angular.module('app.services.label', []).service('LabelService', LabelService);
 
-    LabelService.$inject = ['LocalStorage', '$q', '$http'];
+    LabelService.$inject = ['$q', '$http'];
 
-    function LabelService(LocalStorage, $q, $http) {
+    function LabelService($q, $http) {
         var self = this;
 
         self.getLabels = () => {
@@ -13,7 +13,7 @@
 
             $http({
                 method: 'GET',
-                url: '/labels/getLabels'
+                url: '/labels/get'
             })
             .then(function(res) {
                 return deferred.resolve(res.data);
@@ -25,8 +25,22 @@
             return deferred.promise;
         };
 
-        self.setLabels = (newValue) => {
-            LocalStorage.set('labels', newValue);
+        self.setLabels = (data) => {
+            var deferred = $q.defer();
+
+            $http({
+                method: 'POST',
+                url: '/labels/create',
+                params: data
+            })
+            .then(function(res) {
+                return deferred.resolve(res.data);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
+
+            return deferred.promise;
         };
     };
 }());

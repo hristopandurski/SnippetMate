@@ -9,10 +9,10 @@ module.exports = {
     /**
      * Get all labels created by the logged in user.
      *
-     * @param { Object }
-     * @param { Object }
+     * @param { Object } req
+     * @param { Object } res
      */
-    getLabels: function(req, res) {
+    get: function(req, res) {
         var user =  req.session.user,
             userId;
 
@@ -31,6 +31,28 @@ module.exports = {
             console.log('labels: ', labels);
 
             return res.json(labels);
+        });
+    },
+
+    /**
+     * Creates a new label.
+     *
+     * @param {object} req
+     * @param {object} res
+     */
+    create: function(req, res) {
+        var params = req.allParams();
+
+        console.log('in labels create:', params);
+
+        Labels.create(params).exec(function(err, createdLabel) {
+            console.log('in labels create exec: ', createdLabel);
+
+            if (err) {
+                return res.negotiate(err);
+            }
+
+            return res.json(createdLabel);
         });
     }
 };

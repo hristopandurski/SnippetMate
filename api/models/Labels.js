@@ -11,7 +11,10 @@ module.exports = {
         userId: {
             type: 'integer'
         },
-        text: {
+        title: {
+            type: 'string'
+        },
+        color: {
             type: 'string'
         }
     }

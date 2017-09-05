@@ -12,7 +12,7 @@ module.exports = {
      * @param {object} req
      * @param {object} res
      */
-    getSnippets: function(req, res) {
+    get: function(req, res) {
         var user =  req.session.user,
             userId;
 

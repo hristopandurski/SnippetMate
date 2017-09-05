@@ -13,7 +13,7 @@
 
             $http({
                 method: 'GET',
-                url: '/snippets/getSnippets'
+                url: '/snippets/get'
             })
             .then(function(res) {
                 return deferred.resolve(res.data);
