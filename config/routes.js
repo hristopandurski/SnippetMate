@@ -43,6 +43,8 @@ module.exports.routes = {
 
     'GET /snippets/get': 'SnippetsController.get',
     'POST /snippets/create': 'SnippetsController.create',
+    'PUT /snippets/star': 'SnippetsController.star',
+    'DELETE /snippets/delete': 'SnippetsController.delete',
 
     'GET /labels/get': 'LabelsController.get',
     'POST /labels/create': 'LabelsController.create'

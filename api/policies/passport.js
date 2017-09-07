@@ -35,14 +35,12 @@ module.exports = function(req, res, next) {
 
             // Make the request's passport methods available for socket
             if (req.isSocket) {
-                console.log('in passport.js isSocket');
                 _.each(methods, function(method) {
                     req[method] = http.IncomingMessage.prototype[method].bind(req);
                 });
             }
 
             if (req.user) {
-                console.log('in passport.js policy ' + req.user.id);
                 req.session.authenticated = true;
                 req.session.passport = {user: req.user.id};
             }

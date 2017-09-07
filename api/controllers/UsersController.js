@@ -20,9 +20,7 @@ module.exports = {
     create: function(req, res, next) {
 
         Users.create(req.allParams()).exec(function(err, createdUser) {
-            console.log('in usercontroller1: ', createdUser.username);
             if (err) {
-                console.log('in usercontroller2: ', createdUser.username);
 
                 // Check for duplicate username
                 if (err.invalidAttributes && err.invalidAttributes.username && err.invalidAttributes.username[0] &&
@@ -35,7 +33,6 @@ module.exports = {
                 return res.negotiate(err);
             }
 
-            console.log('in usercontroller3: ', createdUser.username);
             return res.json({
                 username: createdUser.username
             });
@@ -87,14 +84,13 @@ module.exports = {
             if (err) return res.negotiate(err);
 
             if (!user) {
-                console.log('in showById1 - user ' + user, err);
+
                 return res.ok({
                     error: true,
                     errorMessage: 'User with id ' + req.user + ' does not exist in the database'
                 });
             }
 
-            console.log('in showById2 user.id= ' + user.id, err);
             res.json(user);
         });
     },

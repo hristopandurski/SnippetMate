@@ -27,8 +27,6 @@ module.exports = {
             req.logIn(user, function(err) {
                 if (err) return res.send(err);
 
-                console.log('in AuthController req.login ' + user.username);
-
                 req.session.user = user;
 
                 return res.json({

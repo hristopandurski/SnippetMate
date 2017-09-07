@@ -18,7 +18,6 @@ module.exports = {
 
         if (!!user) {
             userId = user.id;
-            console.log('in labels controller - userId', userId);
         }
 
         Labels.find({
@@ -27,8 +26,6 @@ module.exports = {
             if (err) {
                 return res.notFound(err);
             }
-
-            console.log('labels: ', labels);
 
             return res.json(labels);
         });
@@ -43,11 +40,7 @@ module.exports = {
     create: function(req, res) {
         var params = req.allParams();
 
-        console.log('in labels create:', params);
-
         Labels.create(params).exec(function(err, createdLabel) {
-            console.log('in labels create exec: ', createdLabel);
-
             if (err) {
                 return res.negotiate(err);
             }

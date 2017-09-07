@@ -10,9 +10,18 @@
 
     function SnippetDetailsController($stateParams, $location, $scope, $filter, $mdSidenav, $timeout, LocalStorage,
                                       SnippetService, StarredService) {
-        var vm = this,
-            snippets,
-            starred;
+        var vm = this;
+
+        // dependencies
+        vm.$stateParams = $stateParams;
+        vm.$filter = $filter;
+        vm.SnippetService = SnippetService;
+
+        // global variables
+        vm.model = {
+            snippets: {},
+            starred: {}
+        };
 
         vm.editingSnippet = false;
 
@@ -20,7 +29,9 @@
             vm.editingSnippet = !vm.editingSnippet;
         };
 
-        // get the edited snipet from the local storage and close the editing panel
+        /**
+        * Get the edited snipet from the local storage and close the editing panel.
+        */
         vm.onEdit = () => {
             vm.filterSelectedSnippet();
 
@@ -31,25 +42,32 @@
             vm.isEditing();
         };
 
-        // close the editing panel
+        /**
+        * Close the editing panel.
+        */
         vm.onCancel = () => {
             vm.isEditing();
         };
 
-        // remove snippet from local storage
+        /**
+        * Delete the snippet.
+        */
         vm.onDelete = () => {
-            starred = starred.filter(function(obj) {
-                return obj.id !== vm.snippet.id;
-            });
+            let data = {
+                id: vm.snippet.id
+            };
 
-            snippets = snippets.filter(function(obj) {
-                return obj.id !== vm.snippet.id;
-            });
-
-            SnippetService.setSnippets(snippets);
-            StarredService.setStarred(starred);
-
-            vm.onClose();
+            SnippetService.delete(data)
+                .then(function() {
+                    console.log('Snippet is deleted successfully!');
+                })
+                .catch(function() {
+                    // TODO: show error
+                    console.log(err);
+                })
+                .finally(function() {
+                    vm.onClose();
+                });
         };
 
         vm.onClose = () => {
@@ -58,29 +76,35 @@
             $location.path('/');
         };
 
+        /**
+        * Update the starred condition of the snippet.
+        */
         vm.starSnippet = (event) => {
             var $icon = $(event.target);
 
-            // add/remove snippet from starred
             if (vm.snippet.isStarred) {
                 $icon.removeClass('isStarred');
-
-                starred = starred.filter(function(obj) {
-                    return obj.id !== vm.snippet.id;
-                });
 
                 vm.snippet.isStarred = false;
             } else {
                 $icon.addClass('isStarred');
-                starred.push(vm.snippet);
+
                 vm.snippet.isStarred = true;
             }
 
-            // save to local storage
-            SnippetService.setSnippets(snippets);
-            StarredService.setStarred(starred);
+            SnippetService.star(vm.snippet)
+                .then(function() {
+                    console.log('Starred the snippet successfully!');
+                })
+                .catch(function(err) {
+                    // TODO: show error
+                    console.log(err);
+                });
         };
 
+        /**
+        * Opens up the tweet window so the user can share the tweet.
+        */
         vm.snippetTweet = () => {
             window.open('https://twitter.com/share?url=' + escape(window.location.href) +
                         '&text=' + vm.snippet.title, '',
@@ -94,23 +118,9 @@
             snippet.setReadOnly(true);
         };
 
-        vm.filterSelectedSnippet = () => {
-            SnippetService.getSnippets()
-                        .then(function(data) {
-                            snippets = data;
-
-                            vm.snippet = $filter('filter')(snippets, {id: parseInt($stateParams.id)})[0];
-
-                            if (vm.snippet.isStarred) {
-                                vm.isStarred = true;
-                            }
-                        });
-        };
-
         vm.$onInit = () => {
             vm.isStarred = false;
 
-            // get the data for the opened snippet
             vm.filterSelectedSnippet();
 
             $timeout(function() {
@@ -120,11 +130,25 @@
                 // initialize ace code editor
                 vm.codePrettifier();
             }, 10);
-
-            StarredService.getStarred()
-                    .then(function(data) {
-                        starred = data;
-                    });
         };
     }
+
+    /**
+    * Get the data related to the opened snippet.
+    */
+    SnippetDetailsController.prototype.filterSelectedSnippet = function() {
+        let vm = this,
+            snippetId = parseInt(vm.$stateParams.id);
+
+        vm.SnippetService.getSnippets()
+                    .then(function(data) {
+                        vm.model.snippets = data;
+
+                        vm.snippet = vm.$filter('filter')(vm.model.snippets, {id: snippetId})[0];
+
+                        if (vm.snippet.isStarred) {
+                            vm.isStarred = true;
+                        }
+                    });
+    };
 })();

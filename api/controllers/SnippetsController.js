@@ -18,7 +18,6 @@ module.exports = {
 
         if (!!user) {
             userId = user.id;
-            console.log('in snippets controller - userId', userId);
         }
 
         Snippets.find({
@@ -41,17 +40,54 @@ module.exports = {
     create: function(req, res) {
         var newSnippet = req.allParams();
 
-        console.log('in snippets create:', newSnippet.description);
-
         Snippets.create(newSnippet).exec(function(err, createdSnippet) {
-            console.log('in snippets create exec: ', createdSnippet.id);
-
             if (err) {
                 return res.negotiate(err);
             }
 
-            console.log('in usercontroller3: ', createdSnippet.username);
             return res.json(createdSnippet);
+        });
+    },
+
+    /**
+     * Update a snippet by making it starred or not starred.
+     *
+     * @param {object} req
+     * @param {object} res
+     */
+    star: function(req, res) {
+        var snippet = req.allParams();
+
+        if (!(snippet.id && snippet.isStarred)) {
+            return res.badRequest('Update attempt failed, invalid data.');
+        }
+
+        Snippets.update({id: snippet.id}, {isStarred: snippet.isStarred}).exec(function(err, updated) {
+
+            if (err) {
+                console.log('in err: ', err);
+                return res.negotiate(err);
+            }
+
+            return res.json({
+                notice: 'Updated the snippet!'
+            });
+        });
+    },
+
+    /**
+     * Delete a snippet.
+     *
+     * @param {object} req
+     * @param {object} res
+     */
+    delete: function(req, res) {
+        Snippets.destroy({id: req.param('id')}).exec(function(err, deleted) {
+            if (err) {
+                return res.negotiate(err);
+            }
+
+            return res.ok();
         });
     }
 };
