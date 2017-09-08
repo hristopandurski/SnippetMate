@@ -80,7 +80,11 @@
         * Update the starred condition of the snippet.
         */
         vm.starSnippet = (event) => {
-            var $icon = $(event.target);
+            let $icon = $(event.target),
+                data = {
+                    id: vm.snippet.id,
+                    isStarred: vm.snippet.isStarred
+                };
 
             if (vm.snippet.isStarred) {
                 $icon.removeClass('isStarred');
@@ -92,7 +96,7 @@
                 vm.snippet.isStarred = true;
             }
 
-            SnippetService.star(vm.snippet)
+            SnippetService.star(data)
                 .then(function() {
                     console.log('Starred the snippet successfully!');
                 })
@@ -141,14 +145,14 @@
             snippetId = parseInt(vm.$stateParams.id);
 
         vm.SnippetService.getSnippets()
-                    .then(function(data) {
-                        vm.model.snippets = data;
+            .then(function(data) {
+                vm.model.snippets = data;
 
-                        vm.snippet = vm.$filter('filter')(vm.model.snippets, {id: snippetId})[0];
+                vm.snippet = vm.$filter('filter')(vm.model.snippets, {id: snippetId})[0];
 
-                        if (vm.snippet.isStarred) {
-                            vm.isStarred = true;
-                        }
-                    });
+                if (vm.snippet.isStarred) {
+                    vm.isStarred = true;
+                }
+            });
     };
 })();

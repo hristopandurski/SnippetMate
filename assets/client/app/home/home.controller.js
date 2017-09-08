@@ -26,6 +26,9 @@
 
         vm.UserService = UserService;
 
+        /**
+        * Show the snippets created by the logged in user.
+        */
         vm.filterUserSnippets = () => {
 
             SnippetService.getSnippets()
@@ -39,6 +42,9 @@
                 });
         };
 
+        /**
+        * Show the labels created by the logged in user.
+        */
         vm.filterUserLabels = () => {
             LabelService.getLabels()
                 .then(function(labels) {
@@ -52,47 +58,59 @@
                 });
         };
 
+        /**
+        * Filter out all of the snippets depending on the selected filter.
+        */
         vm.selectFilter = (event) => {
-            var $tab = $(event.delegateTarget),
+            let $tab = $(event.delegateTarget),
                 value = $tab.text().trim(),
-                user = AuthenticationService.GetCurrentUser(),
-                authdata = user.authdata,
-                result = [];
+                result = [],
+                label;
 
             if ($tab.hasClass('filter-selected')) {
                 return;
             }
 
             SnippetService.getSnippets()
-                        .then(function(data) {
-                            // refill the already fitlered snippets
-                            vm.snippets = $filter('filter')(data, {authdata: authdata});
+                .then(function(data) {
+                    // refill the already fitlered snippets
+                    vm.snippets = data;
 
-                            switch (value) {
-                                case 'My Snippets':
+                    switch (value) {
+                        case 'My Snippets':
 
-                                    vm.filterUserSnippets();
-                                    break;
-                                case 'Starred':
+                            // show all snippets
+                            vm.filterUserSnippets();
+                            break;
+                        case 'Starred':
 
-                                    StarredService.getStarred()
-                                                .then(function(data) {
-                                                    vm.snippets = $filter('filter')(data, {authdata: authdata});
-                                                });
+                            // show only the starred snippets
+                            $(vm.snippets).each(function(i, item) {
+                                if (item.isStarred) {
+                                    result.push(item);
+                                }
+                            });
 
-                                    break;
-                                default:
-                                    $(vm.snippets).each(function(i, item) {
-                                        $(item.labels).each(function(index, label) {
-                                            if (label.title === value) {
-                                                result.push(item);
-                                            }
-                                        });
-                                    });
+                            vm.snippets = result;
+                            break;
+                        default:
 
-                                    vm.snippets = result;
-                            }
-                        });
+                            // filter depending on the selected label
+                            $(vm.snippets).each(function(i, item) {
+                                $(item.labels).each(function(index, obj) {
+
+                                    // parse the stringified JSON
+                                    label = JSON.parse(obj);
+
+                                    if (label.title === value) {
+                                        result.push(item);
+                                    }
+                                });
+                            });
+
+                            vm.snippets = result;
+                    }
+                });
 
             $tab.siblings().removeClass('filter-selected');
             $tab.addClass('filter-selected');
