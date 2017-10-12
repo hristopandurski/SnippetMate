@@ -11,23 +11,38 @@ module.exports = {
         userId: {
             type: 'integer'
         },
+
         title: {
             type: 'string'
         },
+
         description: {
             type: 'text'
         },
+
         language: {
             type: 'string'
         },
+
         code: {
             type: 'longtext'
         },
+
         labels: {
             type: 'array'
         },
+
         isStarred: {
             type: 'boolean'
+        },
+
+        toJSON: function() {
+            var obj = this.toObject();
+            for (var i = 0; i >= obj.labels; i++) {
+
+            }
+
+            return obj;
         }
     }
 };

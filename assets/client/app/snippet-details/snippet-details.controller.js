@@ -35,10 +35,6 @@
         vm.onEdit = () => {
             vm.filterSelectedSnippet();
 
-            // update the ace readonly editor
-            var snippet = ace.edit('detailed-code');
-            snippet.setValue(vm.snippet.code);
-
             vm.isEditing();
         };
 
@@ -117,9 +113,11 @@
         };
 
         vm.codePrettifier = () => {
-            var snippet = ace.edit('detailed-code');
-            snippet.setTheme('ace/theme/textmate');
-            snippet.setReadOnly(true);
+            var editor = ace.edit('detailed-code');
+            editor.setTheme('ace/theme/textmate');
+            editor.$blockScrolling = Infinity;
+            editor.setReadOnly(true);
+            editor.setValue(vm.snippet.code);
         };
 
         vm.$onInit = () => {
@@ -130,10 +128,7 @@
             $timeout(function() {
                 // unhide the sidebar
                 $mdSidenav('right').toggle();
-
-                // initialize ace code editor
-                vm.codePrettifier();
-            }, 10);
+            }, 0);
         };
     }
 
@@ -142,6 +137,7 @@
     */
     SnippetDetailsController.prototype.filterSelectedSnippet = function() {
         let vm = this,
+            editor,
             snippetId = parseInt(vm.$stateParams.id);
 
         vm.SnippetService.getSnippets()
@@ -153,6 +149,12 @@
                 if (vm.snippet.isStarred) {
                     vm.isStarred = true;
                 }
+
+                // update the ace readonly editor if the snippet has been edited
+                vm.codePrettifier();
+            })
+            .catch(function(err) {
+                console.log('Error in fetching the opened snippet.');
             });
     };
 })();

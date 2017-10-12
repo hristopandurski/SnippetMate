@@ -42,7 +42,7 @@
             <md-button ng-click="vm.onClose()" class="md-accent">Exit</md-button>
         </section>
       </md-content>
-      <edit-snippet-component ng-show="vm.editingSnippet" snippet="vm.snippet" on-cancel="vm.onCancel()"
+      <edit-snippet-component ng-if="vm.editingSnippet" snippet="vm.snippet" on-cancel="vm.onCancel()"
                               on-edit="vm.onEdit()"></edit-snippet-component>
     </md-sidenav>
 </section>

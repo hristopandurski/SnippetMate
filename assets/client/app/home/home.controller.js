@@ -33,6 +33,14 @@
 
             SnippetService.getSnippets()
                 .then(function(snippets) {
+
+                    // TODO: remove this from here
+                    $(snippets).each(function(i, obj) {
+                        $(obj.labels).each(function(z, label) {
+                            snippets[i].labels[z] = JSON.parse(label);
+                        });
+                    });
+
                     vm.snippets = snippets;
                 })
                 .catch(function(err) {

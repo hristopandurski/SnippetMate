@@ -42,11 +42,15 @@
         };
 
         vm.exists = function(item, list) {
+            let parsed;
+
             if (vm.isInitial) {
                 var isSelected = false;
 
                 $(vm.snippet.labels).each(function(i, label) {
-                    if (label.id === item) {
+                    parsed = JSON.parse(label);
+
+                    if (parsed.id === item) {
                         isSelected = true;
                     }
                 });
@@ -132,25 +136,18 @@
         vm.edit = () => {
             var allSnippets;
 
-            SnippetService.getSnippets()
-                        .then(function(response) {
-                            allSnippets = response;
+            vm.data.code = vm.snippetCode.getValue();
+            vm.data.labels = vm.getLabels();
 
-                            // get the edited data
-                            vm.data.code = vm.snippetCode.getValue();
-                            vm.data.labels = vm.getLabels();
+            SnippetService.edit(vm.data)
+                .then(function(res) {
+                    vm.snippet = vm.data;
 
-                            // replace the existing item with the edited one
-                            $(allSnippets).each(function(i, item) {
-                                if (item.id === vm.data.id) {
-                                    allSnippets.splice(i, 1, vm.data);
-                                }
-                            });
-
-                            SnippetService.setSnippets(allSnippets);
-
-                            vm.onEdit();
-                        });
+                    vm.onEdit();
+                })
+                .catch(function(err) {
+                    console.log('Error when trying to edit the snippet.');
+                });
         };
 
         vm.cancel = () => {
@@ -158,17 +155,20 @@
         };
 
         vm.$onInit = () => {
-            vm.data = angular.copy(vm.snippet);
-
             // get all labels
             LabelService.getLabels()
-                        .then(function(response) {
-                            vm.labels = response;
+                .then(function(response) {
+                    vm.labels = response;
 
-                            $(vm.labels).each(function(i, item) {
-                                vm.labelIds.push(item.id);
-                            });
-                        });
+                    $(vm.labels).each(function(i, item) {
+                        vm.labelIds.push(item.id);
+                    });
+                })
+                .catch(function() {
+                    console.log('Error in fetching the labels.');
+                });
+
+            vm.data = angular.copy(vm.snippet);
 
             // get the labels selected for the opened snippet
             $(vm.snippet.labels).each(function(index, item) {

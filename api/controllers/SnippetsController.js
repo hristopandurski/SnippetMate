@@ -32,6 +32,26 @@ module.exports = {
     },
 
     /**
+     * Gets a specific snippet created by the logged in user.
+     *
+     * @param {object} req
+     * @param {object} res
+     */
+    getOne: function(req, res) {
+        var params =  req.allParams();;
+
+        Snippets.find({
+            id: params.id
+        }).exec(function(err, snippet) {
+            if (err) {
+                return res.notFound(err);
+            }
+
+            return res.json(snippet);
+        });
+    },
+
+    /**
      * Creates a new snippet.
      *
      * @param {object} req
@@ -65,7 +85,6 @@ module.exports = {
         Snippets.update({id: snippet.id}, {isStarred: snippet.isStarred}).exec(function(err, updated) {
 
             if (err) {
-                console.log('in err: ', err);
                 return res.negotiate(err);
             }
 
@@ -73,6 +92,61 @@ module.exports = {
                 notice: 'Updated the snippet!'
             });
         });
+    },
+
+    /**
+     * Editing a snippet.
+     *
+     * @param {object} req
+     * @param {object} res
+     */
+    edit: function(req, res) {
+        var params = req.allParams();
+
+        if (!(params.id && params.isStarred)) {
+            return res.badRequest('Update attempt failed, invalid data.');
+        }
+
+        Snippets
+            .findOne({
+                id: params.id
+            })
+            .populateAll()
+            .exec(function(err, snippet) {
+                if (err) return res.notFound();
+
+                if (!snippet) {
+                    return res.ok({
+                        error: true,
+                        errorMessage: 'Snippet with id ' + params.id + ' does not exist in the database.'
+                    });
+                }
+
+                if (req.user && (snippet.userId !== req.user.id)) {
+                    return res.forbidden({
+                        notice: 'Only the creator of the snippet is able to update it.'
+                    });
+                }
+
+                Snippets.update(params.id, params).exec(function(err, updated) {
+                    if (!err && updated.length) {
+                        Snippets
+                            .findOne({
+                                id: params.id
+                            })
+                            .populateAll()
+                            .exec(function(err, updatedSnippet) {
+                                if (err) return res.notFound();
+
+                                return res.json({
+                                    notice: 'Updated the snippet!'
+                                });
+                            });
+                    } else {
+                        return res.badRequest(err);
+                    }
+                });
+            });
     },
 
     /**
