@@ -40,7 +40,7 @@ module.exports = {
     getOne: function(req, res) {
         var params =  req.allParams();;
 
-        Snippets.find({
+        Snippets.findOne({
             id: params.id
         }).exec(function(err, snippet) {
             if (err) {

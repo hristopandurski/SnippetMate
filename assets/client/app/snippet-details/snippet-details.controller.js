@@ -138,13 +138,13 @@
     SnippetDetailsController.prototype.filterSelectedSnippet = function() {
         let vm = this,
             editor,
-            snippetId = parseInt(vm.$stateParams.id);
+            snippet = {
+                id: parseInt(vm.$stateParams.id)
+            };
 
-        vm.SnippetService.getSnippets()
-            .then(function(data) {
-                vm.model.snippets = data;
-
-                vm.snippet = vm.$filter('filter')(vm.model.snippets, {id: snippetId})[0];
+        vm.SnippetService.getOne(snippet)
+            .then(function(res) {
+                vm.snippet = res;
 
                 if (vm.snippet.isStarred) {
                     vm.isStarred = true;

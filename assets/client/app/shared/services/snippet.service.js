@@ -25,12 +25,13 @@
             return deferred.promise;
         };
 
-        self.getOne = () => {
+        self.getOne = (data) => {
             var deferred = $q.defer();
 
             $http({
                 method: 'GET',
-                url: '/snippets/getOne'
+                url: '/snippets/getOne',
+                params: data
             })
             .then(function(res) {
                 return deferred.resolve(res.data);
