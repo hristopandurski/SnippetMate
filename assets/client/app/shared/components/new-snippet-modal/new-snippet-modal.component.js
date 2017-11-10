@@ -18,35 +18,41 @@
     function newSnippetComponentController($scope, LanguageService, UserService, SnippetService, LabelService) {
         var vm = this;
 
-        vm.labelIds = [];
+        // Dependencies
+        vm.LanguageService = LanguageService;
 
-        vm.selectedLabels = [];
-
-        vm.snippetCode = '';
-
+        // Events
         $scope.$on('clearSnippetModal', function(event, args) {
             vm.snippetTitle = '';
             vm.snippetCode.setValue('');
             vm.description = '';
-            vm.selectedLanguage = vm.languages[0].appendix;
             $scope.form.$setPristine();
 
             vm.$onInit();
         });
 
-        LanguageService.get().then(function(data) {
-            vm.languages = data;
+        // Variables
+        vm.selectedLabels = [];
 
-            // sets initial value to 'js'
-            vm.selectedLanguage = vm.languages[0].appendix;
-        });
+        vm.labelIds = [];
 
+        vm.snippetCode = '';
+
+        vm.hasSelectedLabel = false;
+
+        // Runs on every label checkbox click. Manages the label ids in the vm.labelIds variable.
         vm.toggle = function(item, list) {
             var idx = list.indexOf(item);
             if (idx > -1) {
                 list.splice(idx, 1);
+
+                if (list.length < 1) {
+                    vm.hasSelectedLabel = false;
+                }
             } else {
                 list.push(item);
+
+                vm.hasSelectedLabel = true;
             }
         };
 
@@ -64,9 +70,13 @@
 
         vm.toggleAll = function() {
             if (vm.selectedLabels.length === vm.labelIds.length) {
+                vm.hasSelectedLabel = false;
+
                 vm.selectedLabels = [];
             } else if (vm.selectedLabels.length === 0 || vm.selectedLabels.length > 0) {
                 vm.selectedLabels = vm.labelIds.slice(0);
+
+                vm.hasSelectedLabel = true;
             }
         };
 
@@ -111,8 +121,8 @@
             // assign the already selected labels to the snippet
             newSnippet.labels = vm.getSelectedLabels();
 
-            if (!newSnippet.description || !newSnippet.title || !newSnippet.code || !newSnippet.language) {
-                //TODO: show error
+            if (!newSnippet.description || !newSnippet.title || !newSnippet.code || !newSnippet.language || !newSnippet.labels.length) {
+                vm.error = true;
                 return;
             }
 
@@ -152,20 +162,38 @@
         };
 
         vm.getLabels = () => {
-            LabelService.getLabels()
-                        .then(function(data) {
-                            vm.labels = data;
+            vm.labelIds = [];
 
-                            $(vm.labels).each(function(i, item) {
-                                vm.labelIds.push(item.id);
-                            });
-                        });
+            LabelService.getLabels()
+                .then(function(data) {
+                    vm.labels = data;
+
+                    $(vm.labels).each(function(i, item) {
+                        vm.labelIds.push(item.id);
+                    });
+                });
         };
 
         vm.$onInit = () => {
+            vm.getLanguages();
             vm.getLabels();
             vm.codeEditorInit();
         };
+    };
+
+    newSnippetComponentController.prototype.getLanguages = function() {
+        var vm = this;
+
+        vm.LanguageService.get()
+            .then(function(data) {
+                vm.languages = data;
+
+                // sets initial value to 'js'
+                vm.selectedLanguage = vm.languages[0].appendix;
+            })
+            .catch(function(err) {
+                console.log(err);
+            });
     };
 
     /*
@@ -176,6 +204,10 @@
         var vm = this,
             result = [],
             isSelected;
+
+        if (!vm.labels.length || !vm.selectedLabels.length) {
+            return [];
+        }
 
         return result = vm.labels.filter(function(obj) {
             isSelected = false;

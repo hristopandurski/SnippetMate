@@ -33,6 +33,14 @@
         <div class="filters font-sm labels-filter flex align-center" ng-click="vm.openLabelsModal()">
             <span class="left-panel-icon icon-ic_label_black_24px font-md"></span>
             <span class="flex align-center" hide-md hide-sm hide-xs>New Label</span>
+            <div class="warning-container" ng-class="{'show-warning': vm.warning}">
+                <div class="new-snippet-warning">
+                    Please create a label first.
+                </div>
+                <svg class="warning-svg" height="50" width="100" >
+                    <path d="M0 50 L40 0 L65 0 Z"></path>
+                </svg>
+            </div>
         </div>
         <div class="labels font-sm flex align-center" ng-repeat="label in vm.labels" ng-click="vm.selectFilter($event)">
             <span class="left-panel-icon label-icon" ng-style="{'background-color': label.color}"></span>

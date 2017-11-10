@@ -7,7 +7,7 @@
 
     var app = angular
         .module('app', ['app.home', 'app.login', 'app.register', 'app.services.authentication',
-                        'ui.router', 'ngMaterial', 'app.services.interceptor'])
+                        'app.utils.isAuthenticated', 'ui.router', 'ngMaterial', 'app.services.interceptor'])
         .config(($stateProvider, $locationProvider, $httpProvider) => {
 
             $locationProvider.html5Mode(true);
@@ -16,8 +16,12 @@
                     url: '/',
                     controller: 'HomeController',
                     templateUrl: 'app/home/home.html',
-                    controllerAs: 'vm'
-                    //TODO: add resolve authentication
+                    controllerAs: 'vm',
+                    resolve: {
+                        init: function(IsAuthenticated) {
+                            IsAuthenticated.isLogged();
+                        }
+                    }
                 })
 
                 .state('snippet-details', {
@@ -25,7 +29,12 @@
                     parent: 'home',
                     controller: 'SnippetDetailsController',
                     templateUrl: 'app/snippet-details/snippet-details.html',
-                    controllerAs: 'vm'
+                    controllerAs: 'vm',
+                    resolve: {
+                        init: function(IsAuthenticated) {
+                            IsAuthenticated.isLogged();
+                        }
+                    }
                 })
 
                 .state('login', {

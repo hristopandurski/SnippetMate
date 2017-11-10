@@ -34,12 +34,13 @@ module.exports.routes = {
 
     'POST /users/create': 'UsersController.create',
     'GET /users/show': 'UsersController.show',
+    'GET /users/isAuthenticated': 'UsersController.isAuthenticated',
     'GET /users/showById': 'UsersController.showById',
     'GET /users/showAll': 'UsersController.showAll',
     'POST /users/remove': 'UsersController.remove',
 
-    'PUT /login': 'AuthController.login',
-    'GET /logout': 'AuthController.logout',
+    'POST /login': 'AuthController.login',
+    'POST /logout': 'AuthController.logout',
 
     'GET /snippets/get': 'SnippetsController.get',
     'GET /snippets/getOne': 'SnippetsController.getOne',
@@ -49,7 +50,9 @@ module.exports.routes = {
     'DELETE /snippets/delete': 'SnippetsController.delete',
 
     'GET /labels/get': 'LabelsController.get',
-    'POST /labels/create': 'LabelsController.create'
+    'POST /labels/create': 'LabelsController.create',
+
+    '/*': {view: 'index', skipAssets: true}
 
     /***************************************************************************
     *                                                                          *

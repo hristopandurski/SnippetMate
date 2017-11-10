@@ -27,18 +27,6 @@ module.exports.policies = {
 
     '*': 'passport'
 
-    // 'AuthController': {
-    //     '*': 'passport'
-    // },
-    //
-    // 'UsersController': {
-    //     '*': 'passport'
-    // }
-
-    // 'LabelsController': {
-    //     '*': 'sessionAuth'
-    // }
-
     //'*': 'sessionAuth',
 
     // LabelsController: {

@@ -19,7 +19,55 @@
         <link rel="stylesheet" href="./node_modules/angular-color-picker/angular-color-picker.css"></link>
     </head>
     <body>
-        <main ui-view ng-controller="HomeController as vm"></main>
+        <main ui-view ng-controller="HomeController as vm">
+            <div class="login-wrapper">
+                <form name="form" role="form" novalidate>
+                    <div layout="column" layout-align="center" class="login-container">
+                        <md-toolbar id="login-header">
+                            <div class="flex align-center column">
+                                <h2 class="font-xlg">Welcome!</h2>
+                                <div class="font-md">Sign In</div>
+                            </div>
+                        </md-toolbar>
+                        <div ng-if="vm.dataLoading" class="loader-spinner"></div>
+                        <div class="flex align-center column login-inner-container">
+                            <md-input-container>
+                                <label for="input_01">Username</label>
+                                <input type="text" id="input_01" name="username" class="md-input" ng-model="vm.username" required/>
+                                <span ng-show="form.username.$invalid && !form.username.$pristine" class="font-xs">
+                                    Username is required
+                                </span>
+                            </md-input-container>
+                            <md-input-container>
+                                <label for="input_02">Password</label>
+                                <input type="password" id="input_02" name="password" class="md-input" ng-model="vm.password" required/>
+                                <span ng-show="form.password.$invalid && !form.password.$pristine" class="font-xs">
+                                    Password is required
+                                </span>
+                            </md-input-container>
+                            <span ng-show="vm.loginError" class="font-xs login-error">
+                                Your username and password combination is incorrect.
+                            </span>
+                            <md-button class="md-fab md-ink-ripple" ng-click="vm.login()" aria-label="Submit" ng-class="{'btn-disabled': form.$invalid}" ng-disabled="vm.dataLoading || form.$invalid">
+                                <md-icon>
+                                    <svg fill="#000000" viewBox="0 0 24 24" width="24" height="24">
+                                        <path d="M 8.59 16.34 l 4.58 -4.59 l -4.58 -4.59 L 10 5.75 l 6 6 l -6 6 Z" />
+                                        <path fill="none" d="M 0 -0.25 h 24 v 24 H 0 Z" />
+                                    </svg>
+                                </md-icon>
+                                <div class="md-ripple-container"></div>
+                            </md-button>
+                        </div>
+                        <div class="flex justify-center align-center column login-bottom-text font-sm">
+                            <p>You are not signed in?</p>
+                            <p><a ui-sref="register" class="register-word">Register</a> now.</p>
+                        </div>
+                    </div>
+                    <div class="login-shadow-circle"></div>
+                </form>
+            </div>
+
+        </main>
 
         <div id="fb-root"></div>
         <script src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8"></script>
@@ -44,7 +92,6 @@
         <script src="app/shared/services/snippet.service.js"></script>
         <script src="app/shared/services/label.service.js"></script>
         <script src="app/shared/services/starred.service.js"></script>
-        <script src="app/shared/utils/isAuthenticated.js"></script>
 
         <script src="app/shared/components/snippet/snippet.component.js"></script>
         <script src="app/shared/components/labels-modal/labels-modal.component.js"></script>

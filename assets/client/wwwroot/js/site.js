@@ -7,7 +7,7 @@
 
     var app = angular
         .module('app', ['app.home', 'app.login', 'app.register', 'app.services.authentication',
-                        'ui.router', 'ngMaterial', 'app.services.interceptor'])
+                        'app.utils.isAuthenticated', 'ui.router', 'ngMaterial', 'app.services.interceptor'])
         .config(($stateProvider, $locationProvider, $httpProvider) => {
 
             $locationProvider.html5Mode(true);
@@ -18,12 +18,8 @@
                     templateUrl: 'app/home/home.html',
                     controllerAs: 'vm',
                     resolve: {
-                        init: function(AuthenticationService, $location) {
-                            var user = AuthenticationService.GetCurrentUser();
-
-                            if (user === null || !user.hasOwnProperty('authdata')) {
-                                $location.path('/login');
-                            }
+                        init: function(IsAuthenticated) {
+                            IsAuthenticated.isLogged();
                         }
                     }
                 })
@@ -33,7 +29,12 @@
                     parent: 'home',
                     controller: 'SnippetDetailsController',
                     templateUrl: 'app/snippet-details/snippet-details.html',
-                    controllerAs: 'vm'
+                    controllerAs: 'vm',
+                    resolve: {
+                        init: function(IsAuthenticated) {
+                            IsAuthenticated.isLogged();
+                        }
+                    }
                 })
 
                 .state('login', {
@@ -50,7 +51,9 @@
                     controllerAs: 'vm'
                 });
 
-            $httpProvider.interceptors.push('myHttpInterceptor');
+            //TODO: change the interceptor's logic
+            //$httpProvider.interceptors.push('myHttpInterceptor');
+
         });
 })();
 
@@ -59,13 +62,13 @@
 
     angular.module('app.home', ['app.components.snippet', 'app.components.labels', 'app.components.new-snippet',
                                 'app.services.authentication', 'app.snippet-details', 'app.services.snippet',
-                                'app.services.label', 'app.services.starred', 'ngMaterial'])
+                                'app.services.label', 'app.services.user', 'app.services.starred', 'ngMaterial'])
             .controller('HomeController', HomeController);
 
-    HomeController.$inject = ['$scope', '$location', '$filter', '$mdSidenav', 'AuthenticationService', 'SnippetService',
-                             'LabelService', 'StarredService'];
+    HomeController.$inject = ['$scope', '$location', '$filter', '$timeout', '$mdSidenav', 'AuthenticationService', 'UserService',
+                            'SnippetService', 'LabelService', 'StarredService'];
 
-    function HomeController($scope, $location, $filter, $mdSidenav, AuthenticationService, SnippetService,
+    function HomeController($scope, $location, $filter, $timeout, $mdSidenav, AuthenticationService, UserService, SnippetService,
                             LabelService, StarredService) {
         var vm = this,
             modalOptions = {
@@ -78,36 +81,57 @@
 
         vm.labels = [];
 
+        vm.warning = false;
+
         vm.AuthenticationService = AuthenticationService;
 
+        vm.UserService = UserService;
+
+        /**
+        * Show the snippets created by the logged in user.
+        */
         vm.filterUserSnippets = () => {
-            var user = AuthenticationService.GetCurrentUser(),
-                authdata = user.authdata;
 
-            // filter all the snippets that are not created by the logged in user
             SnippetService.getSnippets()
-                        .then(function(data) {
-                            vm.snippets = $filter('filter')(data, {authdata: authdata});
+                .then(function(snippets) {
+
+                    // TODO: remove this from here
+                    $(snippets).each(function(i, obj) {
+                        $(obj.labels).each(function(z, label) {
+                            snippets[i].labels[z] = JSON.parse(label);
                         });
+                    });
+
+                    vm.snippets = snippets;
+                })
+                .catch(function(err) {
+                    vm.snippets = [];
+                    $location.path('/login');
+                });
         };
 
+        /**
+        * Show the labels created by the logged in user.
+        */
         vm.filterUserLabels = () => {
-            var user = AuthenticationService.GetCurrentUser(),
-                authdata = user.authdata,
-                labels = LabelService.getLabels();
-
-            // filter all the labels that are not created by the logged in user
             LabelService.getLabels()
-                        .then(function(data) {
-                            vm.labels = $filter('filter')(data, {authdata: authdata});
-                        });
+                .then(function(labels) {
+                    vm.labels = labels;
+                })
+                .catch(function(err) {
+                    //TODO: handle errors and show popup message
+
+                    vm.labels = [];
+                    $location.path('/login');
+                });
         };
 
+        /**
+        * Filter out all of the snippets depending on the selected filter.
+        */
         vm.selectFilter = (event) => {
-            var $tab = $(event.delegateTarget),
+            let $tab = $(event.delegateTarget),
                 value = $tab.text().trim(),
-                user = AuthenticationService.GetCurrentUser(),
-                authdata = user.authdata,
                 result = [];
 
             if ($tab.hasClass('filter-selected')) {
@@ -115,41 +139,61 @@
             }
 
             SnippetService.getSnippets()
-                        .then(function(data) {
-                            // refill the already fitlered snippets
-                            vm.snippets = $filter('filter')(data, {authdata: authdata});
+                .then(function(data) {
+                    // refill the already fitlered snippets
+                    vm.snippets = data;
 
-                            switch (value) {
-                                case 'My Snippets':
+                    switch (value) {
+                        case 'My Snippets':
 
-                                    vm.filterUserSnippets();
-                                    break;
-                                case 'Starred':
+                            // show all snippets
+                            vm.filterUserSnippets();
+                            break;
+                        case 'Starred':
 
-                                    StarredService.getStarred()
-                                                .then(function(data) {
-                                                    vm.snippets = $filter('filter')(data, {authdata: authdata});
-                                                });
+                            // show only the starred snippets
+                            $(vm.snippets).each(function(i, item) {
+                                if (item.isStarred) {
+                                    result.push(item);
+                                }
+                            });
 
-                                    break;
-                                default:
-                                    $(vm.snippets).each(function(i, item) {
-                                        $(item.labels).each(function(index, label) {
-                                            if (label.title === value) {
-                                                result.push(item);
-                                            }
-                                        });
-                                    });
+                            vm.snippets = result;
+                            break;
+                        default:
 
-                                    vm.snippets = result;
-                            }
-                        });
+                            // filter depending on the selected label
+                            $(vm.snippets).each(function(i, item) {
+                                $(item.labels).each(function(index, obj) {
+
+                                    // parse the stringified JSON
+                                    item.labels[index] = JSON.parse(obj);
+
+                                    if (item.labels[index].title === value) {
+                                        result.push(item);
+                                    }
+                                });
+                            });
+
+                            vm.snippets = result;
+                    }
+                });
 
             $tab.siblings().removeClass('filter-selected');
             $tab.addClass('filter-selected');
         };
 
         vm.openSnippetModal = () => {
+            if (!vm.labels.length) {
+                vm.warning = true;
+
+                $timeout(function() {
+                    vm.warning = false;
+                }, 3000);
+
+                return;
+            }
+
             $scope.$broadcast('clearSnippetModal');
             $('#new-snippet-modal').remodal(modalOptions).open();
         };
@@ -160,17 +204,29 @@
         };
 
         vm.signOut = () => {
-            $location.path('/login');
+            AuthenticationService.Logout()
+                .then(function() {
+                    $location.path('/login');
+                })
+                .catch(function(err) {
+                    console.log(err.status + ' ' + err.statusText);
+                    $location.path('/login');
+                });
         };
 
         vm.$onInit = () => {
+            vm.getUsername();
             vm.initCustomScrollbars();
             vm.filterUserSnippets();
             vm.filterUserLabels();
-            vm.getUsername();
         };
+
     };
 
+    /**
+     * Initialize the custom scrollbar.
+     *
+     */
     HomeController.prototype.initCustomScrollbars = function() {
         var $panel = $('.right-panel');
 
@@ -186,11 +242,30 @@
         $(window).on('resize orientationchange', updatePerfectScrollbar);
     };
 
+    /**
+     * Get the username of the logged in user.
+     *
+     */
     HomeController.prototype.getUsername = function() {
-        var authService = this.AuthenticationService,
-            user = authService.GetCurrentUser();
+        var self = this,
+            userService = self.UserService;
 
-        this.username = user.username;
+        userService.GetById()
+        .then(function(user) {
+            if (user.error) {
+                //TODO: show popup
+                console.log(user.errorMessage);
+                return;
+            }
+
+            self.username = user.username;
+            return;
+        })
+        .catch(function(err) {
+            self.username = '';
+            console.log(err);
+            return;
+        });
     };
 })();
 
@@ -207,24 +282,29 @@
         vm.loginError = false;
 
         vm.login = () => {
+            var user = {
+                username: vm.username,
+                password: vm.password
+            };
+
             vm.dataLoading = true;
 
-            AuthenticationService.Login(vm.username, vm.password, function(response) {
-                if (response.success) {
-                    AuthenticationService.SetCredentials(vm.username, vm.password);
+            AuthenticationService.Login(user)
+                .then(function(res) {
+                    if (res.error) {
+                        vm.loginError = true;
+                        return;
+                    }
+
                     $location.path('/');
-                } else {
-                    vm.dataLoading = false;
+                })
+                .catch(function(err) {
                     vm.loginError = true;
-                }
-            });
+                })
+                .finally(function() {
+                    vm.dataLoading = false;
+                });
         };
-
-        // reset login status
-        vm.$onInit = () => {
-            AuthenticationService.ClearCredentials();
-        };
-
     }
 })();
 
@@ -250,16 +330,16 @@
             };
 
             UserService.Add(user)
-                .then(function(response) {
-
-                if (response.success) {
+                .then(function(res) {
                     $location.path('/login');
-                } else {
-                    vm.dataLoading = false;
+                })
+                .catch(function(res) {
                     vm.registerError = true;
-                    vm.errorMsg = response.message;
-                }
-            });
+                    vm.errorMsg = 'Username "' + user.username + '" is already taken';
+                })
+                .finally(function() {
+                    vm.dataLoading = false;
+                });
         }
     }
 })();
@@ -276,9 +356,18 @@
 
     function SnippetDetailsController($stateParams, $location, $scope, $filter, $mdSidenav, $timeout, LocalStorage,
                                       SnippetService, StarredService) {
-        var vm = this,
-            snippets,
-            starred;
+        var vm = this;
+
+        // dependencies
+        vm.$stateParams = $stateParams;
+        vm.$filter = $filter;
+        vm.SnippetService = SnippetService;
+
+        // global variables
+        vm.model = {
+            snippets: {},
+            starred: {}
+        };
 
         vm.editingSnippet = false;
 
@@ -286,36 +375,41 @@
             vm.editingSnippet = !vm.editingSnippet;
         };
 
-        // get the edited snipet from the local storage and close the editing panel
+        /**
+        * Get the edited snipet from the local storage and close the editing panel.
+        */
         vm.onEdit = () => {
             vm.filterSelectedSnippet();
-
-            // update the ace readonly editor
-            var snippet = ace.edit('detailed-code');
-            snippet.setValue(vm.snippet.code);
 
             vm.isEditing();
         };
 
-        // close the editing panel
+        /**
+        * Close the editing panel.
+        */
         vm.onCancel = () => {
             vm.isEditing();
         };
 
-        // remove snippet from local storage
+        /**
+        * Delete the snippet.
+        */
         vm.onDelete = () => {
-            starred = starred.filter(function(obj) {
-                return obj.id !== vm.snippet.id;
-            });
+            let data = {
+                id: vm.snippet.id
+            };
 
-            snippets = snippets.filter(function(obj) {
-                return obj.id !== vm.snippet.id;
-            });
-
-            SnippetService.setSnippets(snippets);
-            StarredService.setStarred(starred);
-
-            vm.onClose();
+            SnippetService.delete(data)
+                .then(function() {
+                    console.log('Snippet is deleted successfully!');
+                })
+                .catch(function() {
+                    // TODO: show error
+                    console.log(err);
+                })
+                .finally(function() {
+                    vm.onClose();
+                });
         };
 
         vm.onClose = () => {
@@ -324,29 +418,39 @@
             $location.path('/');
         };
 
+        /**
+        * Update the starred condition of the snippet.
+        */
         vm.starSnippet = (event) => {
-            var $icon = $(event.target);
+            let $icon = $(event.target),
+                data = {
+                    id: vm.snippet.id,
+                    isStarred: vm.snippet.isStarred
+                };
 
-            // add/remove snippet from starred
             if (vm.snippet.isStarred) {
                 $icon.removeClass('isStarred');
-
-                starred = starred.filter(function(obj) {
-                    return obj.id !== vm.snippet.id;
-                });
 
                 vm.snippet.isStarred = false;
             } else {
                 $icon.addClass('isStarred');
-                starred.push(vm.snippet);
+
                 vm.snippet.isStarred = true;
             }
 
-            // save to local storage
-            SnippetService.setSnippets(snippets);
-            StarredService.setStarred(starred);
+            SnippetService.star(data)
+                .then(function() {
+                    console.log('Starred the snippet successfully!');
+                })
+                .catch(function(err) {
+                    // TODO: show error
+                    console.log(err);
+                });
         };
 
+        /**
+        * Opens up the tweet window so the user can share the tweet.
+        */
         vm.snippetTweet = () => {
             window.open('https://twitter.com/share?url=' + escape(window.location.href) +
                         '&text=' + vm.snippet.title, '',
@@ -355,45 +459,96 @@
         };
 
         vm.codePrettifier = () => {
-            var snippet = ace.edit('detailed-code');
-            snippet.setTheme('ace/theme/textmate');
-            snippet.setReadOnly(true);
-        };
+            var editor = ace.edit('detailed-code');
 
-        vm.filterSelectedSnippet = () => {
-            SnippetService.getSnippets()
-                        .then(function(data) {
-                            snippets = data;
-
-                            vm.snippet = $filter('filter')(snippets, {id: parseInt($stateParams.id)})[0];
-
-                            if (vm.snippet.isStarred) {
-                                vm.isStarred = true;
-                            }
-                        });
+            editor.setTheme('ace/theme/textmate');
+            editor.setValue(vm.snippet.code, -1);
+            editor.$blockScrolling = Infinity;
+            editor.setReadOnly(true);
         };
 
         vm.$onInit = () => {
             vm.isStarred = false;
 
-            // get the data for the opened snippet
             vm.filterSelectedSnippet();
 
             $timeout(function() {
                 // unhide the sidebar
                 $mdSidenav('right').toggle();
-
-                // initialize ace code editor
-                vm.codePrettifier();
-            }, 10);
-
-            StarredService.getStarred()
-                    .then(function(data) {
-                        starred = data;
-                    });
+            }, 0);
         };
     }
+
+    /**
+    * Get the data related to the opened snippet.
+    */
+    SnippetDetailsController.prototype.filterSelectedSnippet = function() {
+        let vm = this,
+            editor,
+            snippet = {
+                id: parseInt(vm.$stateParams.id)
+            };
+
+        vm.SnippetService.getOne(snippet)
+            .then(function(res) {
+                vm.snippet = res;
+
+                if (vm.snippet.isStarred) {
+                    vm.isStarred = true;
+                }
+
+                // update the ace readonly editor if the snippet has been edited
+                vm.codePrettifier();
+            })
+            .catch(function(err) {
+                console.log('Error in fetching the opened snippet.');
+            });
+    };
 })();
+
+(function() {
+    'use strict';
+
+    angular.module('app.components.snippet').filter('dateRange', function() {
+        return function(date) {
+            var fromDate = new Date(Date.parse(date)),
+                toDate = new Date(),
+                dayDifference = Math.floor((toDate - fromDate) / (1000 * 60 * 60 * 24)),
+                hrsDifference = Math.floor((toDate - fromDate) / (1000 * 60 * 60)),
+                minDifference = Math.floor((toDate - fromDate) / (1000 * 60)),
+                diff = 0;
+
+            // calculate whats the difference between the snippet's creation and now
+            if (dayDifference <= 0) {
+                if (hrsDifference <= 0) {
+                    if (minDifference <= 0) {
+                        diff = ' just now';
+                    } else {
+                        if (minDifference === 1) {
+                            diff = minDifference + ' minute ago';
+                        } else {
+                            diff = minDifference + ' minutes ago';
+                        }
+                    }
+                } else {
+                    if (hrsDifference === 1) {
+                        diff = hrsDifference + ' hour ago';
+                    } else {
+                        diff = hrsDifference + ' hours ago';
+                    }
+                }
+            } else {
+                if (dayDifference === 1) {
+                    diff = dayDifference + ' day ago';
+                } else {
+                    diff = dayDifference + ' days ago';
+                }
+            }
+
+            return diff;
+        };
+    });
+}());
 
 (function() {
     'use strict';
@@ -402,26 +557,44 @@
         .module('app.services.authentication', ['app.services.user', 'app.data.encoder', 'app.services.localStorage'])
         .service('AuthenticationService', AuthenticationService);
 
-    AuthenticationService.$inject = ['$timeout', 'UserService', 'Base64', 'LocalStorage'];
+    AuthenticationService.$inject = ['$timeout', '$http', '$q', 'UserService', 'Base64', 'LocalStorage'];
 
-    function AuthenticationService($timeout, UserService, Base64, LocalStorage) {
+    function AuthenticationService($timeout, $http, $q, UserService, Base64, LocalStorage) {
         var self = this;
 
-        self.Login = (username, password, callback) => {
-            /*  uses $timeout to simulate api call */
-            $timeout(function() {
-                var response;
-                UserService.GetByUsername(username)
-                    .then(function(user) {
-                        if (user !== null && user.password === password) {
-                            response = {success: true};
-                        } else {
-                            response = {success: false, message: 'Username or password is incorrect'};
-                        }
+        self.Login = (user) => {
+            var deferred = $q.defer();
 
-                        callback(response);
-                    });
-            }, 1000);
+            $http({
+                method: 'POST',
+                url: '/login',
+                params: user
+            })
+            .then(function(res) {
+                return deferred.resolve(res.data);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
+
+            return deferred.promise;
+        };
+
+        self.Logout = () => {
+            var deferred = $q.defer();
+
+            $http({
+                method: 'POST',
+                url: '/logout'
+            })
+            .then(function(res) {
+                return deferred.resolve(res.data);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
+
+            return deferred.promise;
         };
 
         self.SetCredentials = (username, password) => {
@@ -572,22 +745,44 @@
 
     angular.module('app.services.label', []).service('LabelService', LabelService);
 
-    LabelService.$inject = ['LocalStorage', '$q'];
+    LabelService.$inject = ['$q', '$http'];
 
-    function LabelService(LocalStorage, $q) {
+    function LabelService($q, $http) {
         var self = this;
 
         self.getLabels = () => {
-            var deferred = $q.defer(),
-                labels = LocalStorage.get('labels');
+            var deferred = $q.defer();
 
-            deferred.resolve(labels);
+            $http({
+                method: 'GET',
+                url: '/labels/get'
+            })
+            .then(function(res) {
+                return deferred.resolve(res.data);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
 
             return deferred.promise;
         };
 
-        self.setLabels = (newValue) => {
-            LocalStorage.set('labels', newValue);
+        self.setLabels = (data) => {
+            var deferred = $q.defer();
+
+            $http({
+                method: 'POST',
+                url: '/labels/create',
+                params: data
+            })
+            .then(function(res) {
+                return deferred.resolve(res.data);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
+
+            return deferred.promise;
         };
     };
 }());
@@ -644,22 +839,116 @@
 
     angular.module('app.services.snippet', []).service('SnippetService', SnippetService);
 
-    SnippetService.$inject = ['LocalStorage', '$q'];
+    SnippetService.$inject = ['$q', '$http'];
 
-    function SnippetService(LocalStorage, $q) {
+    function SnippetService($q, $http) {
         var self = this;
 
         self.getSnippets = () => {
-            var deferred = $q.defer(),
-                snippets = LocalStorage.get('snippets');
+            var deferred = $q.defer();
 
-            deferred.resolve(snippets);
+            $http({
+                method: 'GET',
+                url: '/snippets/get'
+            })
+            .then(function(res) {
+                return deferred.resolve(res.data);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
 
             return deferred.promise;
         };
 
-        self.setSnippets = (newValue) => {
-            LocalStorage.set('snippets', newValue);
+        self.getOne = (data) => {
+            var deferred = $q.defer();
+
+            $http({
+                method: 'GET',
+                url: '/snippets/getOne',
+                params: data
+            })
+            .then(function(res) {
+                return deferred.resolve(res.data);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
+
+            return deferred.promise;
+        };
+
+        self.setSnippets = (data) => {
+            var deferred = $q.defer();
+
+            $http({
+                method: 'POST',
+                url: '/snippets/create',
+                params: data
+            })
+            .then(function(res) {
+                return deferred.resolve(res.data);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
+
+            return deferred.promise;
+        };
+
+        self.star = (data) => {
+            var deferred = $q.defer();
+
+            $http({
+                method: 'PUT',
+                url: '/snippets/star',
+                params: data
+            })
+            .then(function(res) {
+                return deferred.resolve(res.data);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
+
+            return deferred.promise;
+        };
+
+        self.edit = (data) => {
+            var deferred = $q.defer();
+
+            $http({
+                method: 'PUT',
+                url: '/snippets/edit',
+                params: data
+            })
+            .then(function(res) {
+                return deferred.resolve(res.data);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
+
+            return deferred.promise;
+        };
+
+        self.delete = (data) => {
+            var deferred = $q.defer();
+
+            $http({
+                method: 'DELETE',
+                url: '/snippets/delete',
+                params: data
+            })
+            .then(function(res) {
+                return deferred.resolve(res.data);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
+
+            return deferred.promise;
         };
     };
 }());
@@ -692,23 +981,76 @@
 (function() {
     angular.module('app.services.user', []).service('UserService', UserService);
 
-    UserService.$inject = ['$timeout', '$filter', '$q'];
+    UserService.$inject = ['$timeout', '$filter', '$q', '$http'];
 
-    function UserService($timeout, $filter, $q) {
+    function UserService($timeout, $filter, $q, $http) {
         var self = this;
 
-        self.GetById = (id) => {
-            var deferred = $q.defer(),
-                filtered = $filter('filter')(self.getUsers(), {id: id}),
-                user = filtered.length ? filtered[0] : null;
+        self.GetById = () => {
+            var deferred = $q.defer();
 
-            deferred.resolve(user);
+            $http({
+                method: 'GET',
+                url: '/users/showById'
+            })
+            .then(function(user) {
+                return deferred.resolve(user.data);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
+
+            return deferred.promise;
+        };
+
+        self.isAuthenticated = () => {
+            var deferred = $q.defer();
+
+            $http({
+                method: 'GET',
+                url: '/users/isAuthenticated'
+            })
+            .then(function(user) {
+                return deferred.resolve(user.data);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
+
+            return deferred.promise;
+        };
+
+        self.GetByUsername = (user) => {
+            var deferred = $q.defer();
+
+            $http({
+                method: 'GET',
+                url: '/users/show',
+                params: user
+            })
+            .then(function(user) {
+                return deferred.resolve(user);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
+
             return deferred.promise;
         };
 
         self.GetAll = () => {
             var deferred = $q.defer();
-            deferred.resolve(self.getUsers());
+
+            $http({
+                method: 'GET',
+                url: '/users/showAll'
+            })
+            .then(function(users) {
+                return deferred.resolve(users);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
 
             return deferred.promise;
         };
@@ -716,40 +1058,18 @@
         self.Add = (user) => {
             var deferred = $q.defer();
 
-            // simulate api call with $timeout
-            $timeout(function() {
-                self.GetByUsername(user.username)
-                    .then(function(duplicateUser) {
-                        if (duplicateUser !== null) {
-                            deferred.resolve({
-                                success: false,
-                                message: 'Username "' + user.username + '" is already taken'
-                            });
-                        } else {
-                            var users = self.getUsers();
+            $http({
+                method: 'POST',
+                url: '/users/create',
+                params: user
+            })
+            .then(function(res) {
+                return deferred.resolve(res);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
 
-                            // assign id
-                            var lastUser = users[users.length - 1] || {id: 0};
-                            user.id = lastUser.id + 1;
-
-                            // save to local storage
-                            users.push(user);
-                            self.setUsers(users);
-
-                            deferred.resolve({success: true});
-                        }
-                    });
-            }, 1000);
-
-            return deferred.promise;
-        };
-
-        self.GetByUsername = (username) => {
-            var deferred = $q.defer();
-            var filtered = $filter('filter')(self.getUsers(), {username: username});
-            var user = filtered.length ? filtered[0] : null;
-
-            deferred.resolve(user);
             return deferred.promise;
         };
     }
@@ -770,45 +1090,24 @@
 (function() {
     'use strict';
 
-    angular.module('app.components.snippet').filter('dateRange', function() {
-        return function(date) {
-            var fromDate = new Date(Date.parse(date)),
-                toDate = new Date(),
-                dayDifference = Math.floor((toDate - fromDate) / (1000 * 60 * 60 * 24)),
-                hrsDifference = Math.floor((toDate - fromDate) / (1000 * 60 * 60)),
-                minDifference = Math.floor((toDate - fromDate) / (1000 * 60)),
-                diff = 0;
+    angular.module('app.utils.isAuthenticated', ['app.services.user']).service('IsAuthenticated', IsAuthenticated);
 
-            // calculate whats the difference between the snippet's creation and now
-            if (dayDifference <= 0) {
-                if (hrsDifference <= 0) {
-                    if (minDifference <= 0) {
-                        diff = ' just now';
-                    } else {
-                        if (minDifference === 1) {
-                            diff = minDifference + ' minute ago';
-                        } else {
-                            diff = minDifference + ' minutes ago';
-                        }
-                    }
-                } else {
-                    if (hrsDifference === 1) {
-                        diff = hrsDifference + ' hour ago';
-                    } else {
-                        diff = hrsDifference + ' hours ago';
-                    }
-                }
-            } else {
-                if (dayDifference === 1) {
-                    diff = dayDifference + ' day ago';
-                } else {
-                    diff = dayDifference + ' days ago';
-                }
-            }
+    IsAuthenticated.$inject = ['UserService', '$location'];
 
-            return diff;
+    function IsAuthenticated(UserService, $location) {
+        this.isLogged = () => {
+
+            UserService.isAuthenticated()
+                .then(function(res) {
+                    if (res.error) {
+                        return $location.path('/login');
+                    }
+                })
+                .catch(function(err) {
+                    return $location.path('/login');
+                });
         };
-    });
+    };
 }());
 
 (function() {
@@ -855,11 +1154,15 @@
         };
 
         vm.exists = function(item, list) {
+            let parsed;
+
             if (vm.isInitial) {
                 var isSelected = false;
 
                 $(vm.snippet.labels).each(function(i, label) {
-                    if (label.id === item) {
+                    parsed = JSON.parse(label);
+
+                    if (parsed.id === item) {
                         isSelected = true;
                     }
                 });
@@ -945,25 +1248,18 @@
         vm.edit = () => {
             var allSnippets;
 
-            SnippetService.getSnippets()
-                        .then(function(response) {
-                            allSnippets = response;
+            vm.data.code = vm.snippetCode.getValue();
+            vm.data.labels = vm.getLabels();
 
-                            // get the edited data
-                            vm.data.code = vm.snippetCode.getValue();
-                            vm.data.labels = vm.getLabels();
+            SnippetService.edit(vm.data)
+                .then(function(res) {
+                    vm.snippet = vm.data;
 
-                            // replace the existing item with the edited one
-                            $(allSnippets).each(function(i, item) {
-                                if (item.id === vm.data.id) {
-                                    allSnippets.splice(i, 1, vm.data);
-                                }
-                            });
-
-                            SnippetService.setSnippets(allSnippets);
-
-                            vm.onEdit();
-                        });
+                    vm.onEdit();
+                })
+                .catch(function(err) {
+                    console.log('Error when trying to edit the snippet.');
+                });
         };
 
         vm.cancel = () => {
@@ -971,17 +1267,20 @@
         };
 
         vm.$onInit = () => {
-            vm.data = angular.copy(vm.snippet);
-
             // get all labels
             LabelService.getLabels()
-                        .then(function(response) {
-                            vm.labels = response;
+                .then(function(response) {
+                    vm.labels = response;
 
-                            $(vm.labels).each(function(i, item) {
-                                vm.labelIds.push(item.id);
-                            });
-                        });
+                    $(vm.labels).each(function(i, item) {
+                        vm.labelIds.push(item.id);
+                    });
+                })
+                .catch(function() {
+                    console.log('Error in fetching the labels.');
+                });
+
+            vm.data = angular.copy(vm.snippet);
 
             // get the labels selected for the opened snippet
             $(vm.snippet.labels).each(function(index, item) {
@@ -1020,7 +1319,7 @@
 (function() {
     'use strict';
 
-    angular.module('app.components.labels', ['mp.colorPicker', 'app.services.authentication', 'app.services.label'])
+    angular.module('app.components.labels', ['mp.colorPicker', 'app.services.user', 'app.services.label'])
         .component('labelsComponent', {
             templateUrl: 'app/shared/components/labels-modal/labels-modal.component.html',
             controller: labelsComponentController,
@@ -1030,8 +1329,9 @@
             }
         });
 
-    labelsComponentController.$inject = ['$scope', 'AuthenticationService', 'LabelService'];
-    function labelsComponentController($scope, AuthenticationService, LabelService) {
+    labelsComponentController.$inject = ['$scope', 'UserService', 'LabelService'];
+
+    function labelsComponentController($scope, UserService, LabelService) {
         var vm = this;
 
         vm.labelColor = '#5CAEE9';
@@ -1042,31 +1342,41 @@
         });
 
         vm.saveLabel = () => {
-            var user = AuthenticationService.GetCurrentUser(),
-                authdata = user.authdata,
-                newLabel = {
+            var newLabel = {
                     title: vm.labelTitle,
-                    color: vm.labelColor,
-                    authdata: authdata
+                    color: vm.labelColor
                 };
 
-            LabelService.getLabels()
+            if (!newLabel.title || !newLabel.color) {
+                return;
+            }
+
+            UserService.GetById()
+                .then(function(user) {
+                    if (!user) {
+                        // TODO: show error
+                        return;
+                    }
+
+                    // set the userId of the new snippet equal to the current user id
+                    newLabel.userId = user.id;
+
+                    LabelService.setLabels(newLabel)
                         .then(function(data) {
-                            var labels = data;
-
-                            // assign id
-                            var lastLabel = labels[labels.length - 1] || {id: 0};
-                            newLabel.id = lastLabel.id + 1;
-
-                            // save the new label
-                            labels.push(newLabel);
-                            LabelService.setLabels(labels);
-
                             $('#new-label-modal').remodal().close();
 
-                            // call filterUserSnippets function from parent controller in order to update the shown snippets
+                            // call filterUserSnippets function from parent controller in order to update the shown labels
                             vm.onCreate();
+                        })
+                        .catch(function(err) {
+                            //TODO: show error
+                            console.log(err);
                         });
+                })
+                .catch(function(err) {
+                    //TODO: show error
+                    console.log(err);
+                });
 
         };
     }
@@ -1075,7 +1385,7 @@
 (function() {
     'use strict';
 
-    angular.module('app.components.new-snippet', ['ngMaterial', 'app.services.languages', 'app.services.authentication',
+    angular.module('app.components.new-snippet', ['ngMaterial', 'app.services.languages', 'app.services.user',
                     'app.services.snippet', 'app.services.label'])
         .component('newSnippetComponent', {
             templateUrl: 'app/shared/components/new-snippet-modal/new-snippet-modal.component.html',
@@ -1086,42 +1396,47 @@
             }
         });
 
-    newSnippetComponentController.$inject = ['$scope', 'LanguageService', 'AuthenticationService', 'SnippetService',
+    newSnippetComponentController.$inject = ['$scope', 'LanguageService', 'UserService', 'SnippetService',
                                              'LabelService'];
 
-    function newSnippetComponentController($scope, LanguageService, AuthenticationService, SnippetService,
-                                           LabelService) {
+    function newSnippetComponentController($scope, LanguageService, UserService, SnippetService, LabelService) {
         var vm = this;
 
-        vm.labelIds = [];
+        // Dependencies
+        vm.LanguageService = LanguageService;
 
-        vm.selectedLabels = [];
-
-        vm.snippetCode = '';
-
+        // Events
         $scope.$on('clearSnippetModal', function(event, args) {
             vm.snippetTitle = '';
             vm.snippetCode.setValue('');
             vm.description = '';
-            vm.selectedLanguage = vm.languages[0].appendix;
             $scope.form.$setPristine();
 
             vm.$onInit();
         });
 
-        LanguageService.get().then(function(data) {
-            vm.languages = data;
+        // Variables
+        vm.selectedLabels = [];
 
-            // sets initial value to 'js'
-            vm.selectedLanguage = vm.languages[0].appendix;
-        });
+        vm.labelIds = [];
 
+        vm.snippetCode = '';
+
+        vm.hasSelectedLabel = false;
+
+        // Runs on every label checkbox click. Manages the label ids in the vm.labelIds variable.
         vm.toggle = function(item, list) {
             var idx = list.indexOf(item);
             if (idx > -1) {
                 list.splice(idx, 1);
+
+                if (list.length < 1) {
+                    vm.hasSelectedLabel = false;
+                }
             } else {
                 list.push(item);
+
+                vm.hasSelectedLabel = true;
             }
         };
 
@@ -1139,9 +1454,13 @@
 
         vm.toggleAll = function() {
             if (vm.selectedLabels.length === vm.labelIds.length) {
+                vm.hasSelectedLabel = false;
+
                 vm.selectedLabels = [];
             } else if (vm.selectedLabels.length === 0 || vm.selectedLabels.length > 0) {
                 vm.selectedLabels = vm.labelIds.slice(0);
+
+                vm.hasSelectedLabel = true;
             }
         };
 
@@ -1175,38 +1494,48 @@
         };
 
         vm.saveSnippet = () => {
-            var user = AuthenticationService.GetCurrentUser(),
-                authdata = user.authdata,
-                newSnippet = {
+            var newSnippet = {
                     description: vm.description,
                     title: vm.snippetTitle,
                     code: vm.snippetCode.getValue(),
                     language: vm.selectedLanguage,
-                    created: new Date(),
-                    isStarred: false,
-                    authdata: authdata
+                    isStarred: false
                 };
 
             // assign the already selected labels to the snippet
             newSnippet.labels = vm.getSelectedLabels();
 
-            SnippetService.getSnippets()
+            if (!newSnippet.description || !newSnippet.title || !newSnippet.code || !newSnippet.language || !newSnippet.labels.length) {
+                vm.error = true;
+                return;
+            }
+
+            UserService.GetById()
+                .then(function(user) {
+                    if (!user) {
+                        // TODO: show error
+                        return;
+                    }
+
+                    // set the userId of the new snippet equal to the current user id
+                    newSnippet.userId = user.id;
+
+                    SnippetService.setSnippets(newSnippet)
                         .then(function(data) {
-                            var snippets = data;
-
-                            // assign id
-                            var lastSnippet = snippets[snippets.length - 1] || {id: 0};
-                            newSnippet.id = lastSnippet.id + 1;
-
-                            // save to local storage
-                            snippets.push(newSnippet);
-                            SnippetService.setSnippets(snippets);
-
                             $('#new-snippet-modal').remodal().close();
 
                             // call filterUserSnippets function from parent controller in order to update the shown snippets
                             vm.onCreate();
+                        })
+                        .catch(function(err) {
+                            //TODO: show error
+                            console.log(err);
                         });
+                })
+                .catch(function(err) {
+                    //TODO: show error
+                    console.log(err);
+                });
 
         };
 
@@ -1217,20 +1546,38 @@
         };
 
         vm.getLabels = () => {
-            LabelService.getLabels()
-                        .then(function(data) {
-                            vm.labels = data;
+            vm.labelIds = [];
 
-                            $(vm.labels).each(function(i, item) {
-                                vm.labelIds.push(item.id);
-                            });
-                        });
+            LabelService.getLabels()
+                .then(function(data) {
+                    vm.labels = data;
+
+                    $(vm.labels).each(function(i, item) {
+                        vm.labelIds.push(item.id);
+                    });
+                });
         };
 
         vm.$onInit = () => {
+            vm.getLanguages();
             vm.getLabels();
             vm.codeEditorInit();
         };
+    };
+
+    newSnippetComponentController.prototype.getLanguages = function() {
+        var vm = this;
+
+        vm.LanguageService.get()
+            .then(function(data) {
+                vm.languages = data;
+
+                // sets initial value to 'js'
+                vm.selectedLanguage = vm.languages[0].appendix;
+            })
+            .catch(function(err) {
+                console.log(err);
+            });
     };
 
     /*
@@ -1241,6 +1588,10 @@
         var vm = this,
             result = [],
             isSelected;
+
+        if (!vm.labels.length || !vm.selectedLabels.length) {
+            return [];
+        }
 
         return result = vm.labels.filter(function(obj) {
             isSelected = false;

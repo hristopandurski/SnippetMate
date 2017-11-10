@@ -114,10 +114,11 @@
 
         vm.codePrettifier = () => {
             var editor = ace.edit('detailed-code');
+
             editor.setTheme('ace/theme/textmate');
+            editor.setValue(vm.snippet.code, -1);
             editor.$blockScrolling = Infinity;
             editor.setReadOnly(true);
-            editor.setValue(vm.snippet.code);
         };
 
         vm.$onInit = () => {

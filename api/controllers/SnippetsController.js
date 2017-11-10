@@ -13,18 +13,21 @@ module.exports = {
      * @param {object} res
      */
     get: function(req, res) {
-        var user =  req.session.user,
-            userId;
+        var user =  req.session.user;
 
-        if (!!user) {
-            userId = user.id;
+        if (!user) {
+            return res.send(400, {error: 'User is not logged in.'});
         }
 
         Snippets.find({
-            userId: userId
+            userId: user.id
         }).exec(function(err, snippets) {
             if (err) {
-                return res.notFound(err);
+                return res.send(404, err);
+            }
+
+            if (!snippets) {
+                return res.json([]);
             }
 
             return res.json(snippets);

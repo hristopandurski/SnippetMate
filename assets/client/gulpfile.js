@@ -168,4 +168,4 @@ gulp.task('watch', ['browserSync', 'sass', 'bundlecss', 'revreplace', 'bundlejs'
     gulp.watch(paths.js, ['bundlejs', browserSync.reload]);
 });
 
-gulp.task('default', gulpSequence('clean', 'copy-resources', 'sass', 'bundlecss', 'revreplace', 'bundlejs'));
+gulp.task('default', gulpSequence('clean', 'copy-resources', 'sass', 'bundlecss', 'bundlejs'));

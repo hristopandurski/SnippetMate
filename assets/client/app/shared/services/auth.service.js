@@ -14,12 +14,12 @@
             var deferred = $q.defer();
 
             $http({
-                method: 'PUT',
+                method: 'POST',
                 url: '/login',
                 params: user
             })
             .then(function(res) {
-                return deferred.resolve(res);
+                return deferred.resolve(res.data);
             })
             .catch(function(err) {
                 return deferred.reject(err);
@@ -32,11 +32,11 @@
             var deferred = $q.defer();
 
             $http({
-                method: 'GET',
+                method: 'POST',
                 url: '/logout'
             })
             .then(function(res) {
-                return deferred.resolve(res);
+                return deferred.resolve(res.data);
             })
             .catch(function(err) {
                 return deferred.reject(err);

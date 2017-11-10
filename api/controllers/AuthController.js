@@ -18,9 +18,9 @@ module.exports = {
 
         passport.authenticate('local', function(err, user, info) {
             if ((err) || (!user)) {
-                return res.send({
-                    message: info.message,
-                    user: user
+                return res.json({
+                    error: true,
+                    message: 'Wrong username or password!'
                 });
             }
 
@@ -30,14 +30,16 @@ module.exports = {
                 req.session.user = user;
 
                 return res.json({
-                    username: user.username
+                    success: true,
+                    message: 'User is authenticated'
                 });
             });
         })(req, res);
     },
 
     logout: function(req, res) {
-        req.logout();
-        res.redirect('/');
+        req.session.destroy(function(err) {
+            res.redirect('/');
+        });
     }
 };

@@ -19,15 +19,20 @@
             vm.dataLoading = true;
 
             AuthenticationService.Login(user)
-            .then(function() {
-                $location.path('/');
-            })
-            .catch(function() {
-                vm.loginError = true;
-            })
-            .finally(function() {
-                vm.dataLoading = false;
-            });
+                .then(function(res) {
+                    if (res.error) {
+                        vm.loginError = true;
+                        return;
+                    }
+
+                    $location.path('/');
+                })
+                .catch(function(err) {
+                    vm.loginError = true;
+                })
+                .finally(function() {
+                    vm.dataLoading = false;
+                });
         };
     }
 })();

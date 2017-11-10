@@ -26,8 +26,7 @@ module.exports = {
                 if (err.invalidAttributes && err.invalidAttributes.username && err.invalidAttributes.username[0] &&
                     err.invalidAttributes.username[0].rule === 'unique') {
 
-                    // return res.send(409, 'Username is already taken by another user, please try again.');
-                    return res.alreadyInUse(err);
+                    return res.send(409, 'Username is already taken by another user, please try again.');
                 }
 
                 return res.negotiate(err);
@@ -37,6 +36,17 @@ module.exports = {
                 username: createdUser.username
             });
         });
+    },
+
+    isAuthenticated: function(req, res, next) {
+        if (req.user) {
+            next();
+        } else {
+            return res.json({
+                error: true,
+                reason: 'User is not authenticated.'
+            });
+        }
     },
 
     /**

@@ -6,10 +6,10 @@
                                 'app.services.label', 'app.services.user', 'app.services.starred', 'ngMaterial'])
             .controller('HomeController', HomeController);
 
-    HomeController.$inject = ['$scope', '$location', '$filter', '$mdSidenav', 'AuthenticationService', 'UserService',
+    HomeController.$inject = ['$scope', '$location', '$filter', '$timeout', '$mdSidenav', 'AuthenticationService', 'UserService',
                             'SnippetService', 'LabelService', 'StarredService'];
 
-    function HomeController($scope, $location, $filter, $mdSidenav, AuthenticationService, UserService, SnippetService,
+    function HomeController($scope, $location, $filter, $timeout, $mdSidenav, AuthenticationService, UserService, SnippetService,
                             LabelService, StarredService) {
         var vm = this,
             modalOptions = {
@@ -21,6 +21,8 @@
         vm.snippets = [];
 
         vm.labels = [];
+
+        vm.warning = false;
 
         vm.AuthenticationService = AuthenticationService;
 
@@ -44,9 +46,8 @@
                     vm.snippets = snippets;
                 })
                 .catch(function(err) {
-                    //TODO: handle errors and show popup message
                     vm.snippets = [];
-                    console.log(err);
+                    $location.path('/login');
                 });
         };
 
@@ -62,7 +63,7 @@
                     //TODO: handle errors and show popup message
 
                     vm.labels = [];
-                    console.log(err);
+                    $location.path('/login');
                 });
         };
 
@@ -124,6 +125,16 @@
         };
 
         vm.openSnippetModal = () => {
+            if (!vm.labels.length) {
+                vm.warning = true;
+
+                $timeout(function() {
+                    vm.warning = false;
+                }, 3000);
+
+                return;
+            }
+
             $scope.$broadcast('clearSnippetModal');
             $('#new-snippet-modal').remodal(modalOptions).open();
         };

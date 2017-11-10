@@ -9,6 +9,12 @@
 .new-labels-container {
     padding: 0 20px 20px 20px;
 
+    div {
+        .label-checker {
+            display: none;
+        }
+    }
+
     md-checkbox {
         .md-label {
            color: #727373;

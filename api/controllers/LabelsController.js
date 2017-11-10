@@ -13,18 +13,21 @@ module.exports = {
      * @param { Object } res
      */
     get: function(req, res) {
-        var user =  req.session.user,
-            userId;
+        var user =  req.session.user;
 
-        if (!!user) {
-            userId = user.id;
+        if (!user) {
+            return res.send(400, {error: 'User is not logged in.'});
         }
 
         Labels.find({
-            userId: userId
+            userId: user.id
         }).exec(function(err, labels) {
             if (err) {
                 return res.notFound(err);
+            }
+
+            if (!labels) {
+                return res.json([]);
             }
 
             return res.json(labels);

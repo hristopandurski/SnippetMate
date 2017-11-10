@@ -9,8 +9,9 @@
             Description is required
         </span>
     </section>
-    <section class="new-labels-container" ng-show="nsc.labels.length">
+    <section class="new-labels-container">
         <div class="flex column justify-start align-start">
+            <input type="checkbox" class="label-checker" ng-model="nsc.hasSelectedLabel" name="label" required />
             <div class="flex align-start">
                 <md-checkbox class="flex align-center font-sm"
                              aria-label="Select All"
@@ -22,7 +23,7 @@
             </div>
             <div layout="row" layout-wrap class="label-checkboxes font-sm">
                 <div flex="20" class="flex" ng-repeat="label in nsc.labels">
-                    <md-checkbox ng-checked="nsc.exists(label.id, nsc.selectedLabels)"
+                    <md-checkbox required ng-checked="nsc.exists(label.id, nsc.selectedLabels)"
                                  ng-click="nsc.toggle(label.id, nsc.selectedLabels)">
                         {{ label.title }}
                     </md-checkbox>

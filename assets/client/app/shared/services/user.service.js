@@ -23,6 +23,23 @@
             return deferred.promise;
         };
 
+        self.isAuthenticated = () => {
+            var deferred = $q.defer();
+
+            $http({
+                method: 'GET',
+                url: '/users/isAuthenticated'
+            })
+            .then(function(user) {
+                return deferred.resolve(user.data);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
+
+            return deferred.promise;
+        };
+
         self.GetByUsername = (user) => {
             var deferred = $q.defer();
 
