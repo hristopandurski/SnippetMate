@@ -11,13 +11,19 @@
             }
         });
 
-    labelsComponentController.$inject = ['$scope', 'UserService', 'LabelService'];
+    labelsComponentController.$inject = ['$scope', '$mdToast', 'UserService', 'LabelService'];
 
-    function labelsComponentController($scope, UserService, LabelService) {
+    function labelsComponentController($scope, $mdToast, UserService, LabelService) {
+
+        // Variables
         var vm = this;
 
         vm.labelColor = '#5CAEE9';
 
+        // Dependencies
+        vm.$mdToast = $mdToast;
+
+        // Events
         $scope.$on('clearLabelsModal', function(event, args) {
             vm.labelTitle = '';
             $scope.form.$setPristine();
@@ -36,7 +42,7 @@
             UserService.GetById()
                 .then(function(user) {
                     if (!user) {
-                        // TODO: show error
+                        vm.showError('No current user.');
                         return;
                     }
 
@@ -51,15 +57,29 @@
                             vm.onCreate();
                         })
                         .catch(function(err) {
-                            //TODO: show error
-                            console.log(err);
+                            vm.showError('Could not create a label.');
                         });
                 })
                 .catch(function(err) {
-                    //TODO: show error
-                    console.log(err);
+                    vm.showError('Could not fetch user id.');
                 });
 
         };
     }
+
+    /**
+    * Show error toaster.
+    *
+    * @param {String} message
+    */
+    labelsComponentController.prototype.showError = function(message) {
+        var vm = this;
+
+        vm.$mdToast.show(
+            vm.$mdToast.simple()
+                .textContent('Error: ' + message)
+                .position('bottom right')
+                .hideDelay(3000)
+        );
+    };
 })();

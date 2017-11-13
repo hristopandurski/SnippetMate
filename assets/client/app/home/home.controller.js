@@ -6,11 +6,13 @@
                                 'app.services.label', 'app.services.user', 'app.services.starred', 'ngMaterial'])
             .controller('HomeController', HomeController);
 
-    HomeController.$inject = ['$scope', '$location', '$filter', '$timeout', '$mdSidenav', 'AuthenticationService', 'UserService',
-                            'SnippetService', 'LabelService', 'StarredService'];
+    HomeController.$inject = ['$scope', '$location', '$filter', '$timeout', '$mdSidenav', '$mdToast', 'AuthenticationService',
+                            'UserService', 'SnippetService', 'LabelService', 'StarredService'];
 
-    function HomeController($scope, $location, $filter, $timeout, $mdSidenav, AuthenticationService, UserService, SnippetService,
-                            LabelService, StarredService) {
+    function HomeController($scope, $location, $filter, $timeout, $mdSidenav, $mdToast, AuthenticationService,
+                            UserService, SnippetService, LabelService, StarredService) {
+
+        // Variables
         var vm = this,
             modalOptions = {
                 'hashTracking': false,
@@ -24,52 +26,53 @@
 
         vm.warning = false;
 
+        // Dependencies
         vm.AuthenticationService = AuthenticationService;
 
         vm.UserService = UserService;
 
-        /**
-        * Show the snippets created by the logged in user.
-        */
+        vm.$mdToast = $mdToast;
+
+        // Show the snippets created by the logged in user.
         vm.filterUserSnippets = () => {
 
             SnippetService.getSnippets()
-                .then(function(snippets) {
+                .then(function(response) {
+                    // User is not logged in.
+                    if (response.error) {
+                        $location.path('/login');
+                    }
 
-                    // TODO: remove this from here
-                    $(snippets).each(function(i, obj) {
+                    $(response).each(function(i, obj) {
                         $(obj.labels).each(function(z, label) {
-                            snippets[i].labels[z] = JSON.parse(label);
+                            response[i].labels[z] = JSON.parse(label);
                         });
                     });
 
-                    vm.snippets = snippets;
+                    vm.snippets = response;
                 })
                 .catch(function(err) {
-                    vm.snippets = [];
-                    $location.path('/login');
+                    vm.showError('Could not fetch snippets.');
                 });
         };
 
-        /**
-        * Show the labels created by the logged in user.
-        */
+        // Show the labels created by the logged in user.
         vm.filterUserLabels = () => {
             LabelService.getLabels()
-                .then(function(labels) {
-                    vm.labels = labels;
+                .then(function(response) {
+                    // User is not logged in.
+                    if (response.error) {
+                        $location.path('/login');
+                    }
+
+                    vm.labels = response;
                 })
                 .catch(function(err) {
-                    //TODO: handle errors and show popup message
-
-                    vm.labels = [];
-                    $location.path('/login');
+                    vm.showError('Could not fetch labels.');
                 });
         };
 
-        /**
-        * Filter out all of the snippets depending on the selected filter.
-        */
+        // Filter out all of the snippets depending on the selected filter.
         vm.selectFilter = (event) => {
             let $tab = $(event.delegateTarget),
                 value = $tab.text().trim(),
@@ -103,7 +106,7 @@
                             break;
                         default:
 
-                            // filter depending on the selected label
+                            // Filter depending on the selected label
                             $(vm.snippets).each(function(i, item) {
                                 $(item.labels).each(function(index, obj) {
 
@@ -118,6 +121,9 @@
 
                             vm.snippets = result;
                     }
+                })
+                .catch(function(err) {
+                    vm.showError('Could not filter snippets.');
                 });
 
             $tab.siblings().removeClass('filter-selected');
@@ -150,7 +156,7 @@
                     $location.path('/login');
                 })
                 .catch(function(err) {
-                    console.log(err.status + ' ' + err.statusText);
+                    vm.showError('Unable to sign out.');
                     $location.path('/login');
                 });
         };
@@ -165,9 +171,22 @@
     };
 
     /**
-     * Initialize the custom scrollbar.
-     *
-     */
+    * Show error toaster.
+    *
+    * @param {String} message
+    */
+    HomeController.prototype.showError = function(message) {
+        var vm = this;
+
+        vm.$mdToast.show(
+            vm.$mdToast.simple()
+                .textContent('Error: ' + message)
+                .position('bottom right')
+                .hideDelay(3000)
+        );
+    };
+
+    // Initialize the custom scrollbar.
     HomeController.prototype.initCustomScrollbars = function() {
         var $panel = $('.right-panel');
 
@@ -183,29 +202,22 @@
         $(window).on('resize orientationchange', updatePerfectScrollbar);
     };
 
-    /**
-     * Get the username of the logged in user.
-     *
-     */
+    // Get the username of the logged in user.
     HomeController.prototype.getUsername = function() {
-        var self = this,
-            userService = self.UserService;
+        var vm = this,
+            userService = vm.UserService;
 
         userService.GetById()
-        .then(function(user) {
-            if (user.error) {
-                //TODO: show popup
-                console.log(user.errorMessage);
-                return;
-            }
+            .then(function(res) {
+                if (res.error) {
+                    vm.showError(res.errorMessage);
+                    return;
+                }
 
-            self.username = user.username;
-            return;
-        })
-        .catch(function(err) {
-            self.username = '';
-            console.log(err);
-            return;
-        });
+                vm.username = res.username;
+            })
+            .catch(function(err) {
+                vm.showError('Could not fetch username.');
+            });
     };
 })();

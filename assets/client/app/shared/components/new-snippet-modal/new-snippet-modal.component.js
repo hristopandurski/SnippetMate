@@ -12,14 +12,16 @@
             }
         });
 
-    newSnippetComponentController.$inject = ['$scope', 'LanguageService', 'UserService', 'SnippetService',
+    newSnippetComponentController.$inject = ['$scope', '$mdToast', 'LanguageService', 'UserService', 'SnippetService',
                                              'LabelService'];
 
-    function newSnippetComponentController($scope, LanguageService, UserService, SnippetService, LabelService) {
+    function newSnippetComponentController($scope, $mdToast, LanguageService, UserService, SnippetService, LabelService) {
         var vm = this;
 
         // Dependencies
         vm.LanguageService = LanguageService;
+
+        vm.$mdToast = $mdToast;
 
         // Events
         $scope.$on('clearSnippetModal', function(event, args) {
@@ -144,13 +146,11 @@
                             vm.onCreate();
                         })
                         .catch(function(err) {
-                            //TODO: show error
-                            console.log(err);
+                            vm.showError('Could not create the new snippet.');
                         });
                 })
                 .catch(function(err) {
-                    //TODO: show error
-                    console.log(err);
+                    vm.showError('Could not get the user id.');
                 });
 
         };
@@ -171,6 +171,9 @@
                     $(vm.labels).each(function(i, item) {
                         vm.labelIds.push(item.id);
                     });
+                })
+                .catch(function() {
+                    vm.showError('Could not fetch the labels.');
                 });
         };
 
@@ -179,6 +182,22 @@
             vm.getLabels();
             vm.codeEditorInit();
         };
+    };
+
+    /**
+    * Show error toaster.
+    *
+    * @param {String} message
+    */
+    newSnippetComponentController.prototype.showError = function(message) {
+        var vm = this;
+
+        vm.$mdToast.show(
+            vm.$mdToast.simple()
+                .textContent('Error: ' + message)
+                .position('bottom right')
+                .hideDelay(3000)
+        );
     };
 
     newSnippetComponentController.prototype.getLanguages = function() {
@@ -192,7 +211,7 @@
                 vm.selectedLanguage = vm.languages[0].appendix;
             })
             .catch(function(err) {
-                console.log(err);
+                vm.showError('Could not fetch the languages.');
             });
     };
 

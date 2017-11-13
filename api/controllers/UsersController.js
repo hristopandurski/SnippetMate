@@ -62,7 +62,7 @@ module.exports = {
             username: params.username
         }).exec(function(err, user) {
             if (!user) {
-                return res.ok({
+                return res.json({
                     error: true,
                     errorMessage: 'User with username ' + params.username + ' does not exist in the database'
                 });
@@ -95,9 +95,9 @@ module.exports = {
 
             if (!user) {
 
-                return res.ok({
+                return res.json({
                     error: true,
-                    errorMessage: 'User with id ' + req.user + ' does not exist in the database'
+                    errorMessage: 'User is not logged in.'
                 });
             }
 

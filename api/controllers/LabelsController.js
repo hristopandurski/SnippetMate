@@ -16,7 +16,7 @@ module.exports = {
         var user =  req.session.user;
 
         if (!user) {
-            return res.send(400, {error: 'User is not logged in.'});
+            return res.json({error: 'User is not logged in.'});
         }
 
         Labels.find({
