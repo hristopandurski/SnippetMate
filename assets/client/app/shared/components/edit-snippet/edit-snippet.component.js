@@ -124,6 +124,7 @@
 
             vm.snippetCode = ace.edit('edit-code-box');
             vm.snippetCode.setTheme('ace/theme/textmate');
+            vm.snippetCode.$blockScrolling = Infinity;
 
             // set the language for the code editor box
             if (language == 'js') {

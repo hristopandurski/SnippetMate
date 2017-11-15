@@ -5,14 +5,9 @@
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
 
-var Passwords = require('machinepack-passwords');
-
 module.exports = {
     /**
     * Create a user record in the data base.
-    *
-    * The Passwords.encryptPassword() machine takes a string as input and transforms it
-    * into an encrypted password using the BCrypt algorithm.
     *
     * @param { Object } req
     * @param { Object } res

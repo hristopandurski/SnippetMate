@@ -159,6 +159,7 @@
             vm.snippetCode = ace.edit('editor');
             vm.snippetCode.setTheme('ace/theme/textmate');
             vm.snippetCode.getSession().setMode('ace/mode/javascript');
+            vm.snippetCode.$blockScrolling = Infinity;
         };
 
         vm.getLabels = () => {

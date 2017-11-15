@@ -29,25 +29,19 @@
             vm.editingSnippet = !vm.editingSnippet;
         };
 
-        /**
-        * Get the edited snipet from the local storage and close the editing panel.
-        */
+        // Get the edited snipet from the local storage and close the editing panel.
         vm.onEdit = () => {
             vm.filterSelectedSnippet();
 
             vm.isEditing();
         };
 
-        /**
-        * Close the editing panel.
-        */
+        // Close the editing panel.
         vm.onCancel = () => {
             vm.isEditing();
         };
 
-        /**
-        * Delete the snippet.
-        */
+        // Delete the snippet.
         vm.onDelete = () => {
             let data = {
                 id: vm.snippet.id
@@ -72,9 +66,7 @@
             $location.path('/');
         };
 
-        /**
-        * Update the starred condition of the snippet.
-        */
+        // Update the starred condition of the snippet.
         vm.starSnippet = (event) => {
             let $icon = $(event.target),
                 data = {
@@ -102,9 +94,7 @@
                 });
         };
 
-        /**
-        * Opens up the tweet window so the user can share the tweet.
-        */
+        // Opens up the tweet window so the user can share the tweet.
         vm.snippetTweet = () => {
             window.open('https://twitter.com/share?url=' + escape(window.location.href) +
                         '&text=' + vm.snippet.title, '',
@@ -133,9 +123,7 @@
         };
     }
 
-    /**
-    * Get the data related to the opened snippet.
-    */
+    // Get the data related to the opened snippet.
     SnippetDetailsController.prototype.filterSelectedSnippet = function() {
         let vm = this,
             editor,

@@ -10,6 +10,7 @@
                 snippet.setTheme('ace/theme/textmate');
                 snippet.setReadOnly(true);
                 snippet.setValue(attrs.editorValue, -1);
+                editor.$blockScrolling = Infinity;
             }
         };
     });
