@@ -15,6 +15,7 @@ module.exports = function(req, res, next) {
         return next();
     } else {
         console.log('sessionAuth else:');
-        return res.redirect('/login');
+        return res.status(403).json({error: 'You are not permitted to perform this action.'});
+
     }
 };

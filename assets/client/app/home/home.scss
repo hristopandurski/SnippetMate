@@ -111,6 +111,7 @@ header {
         margin-top: 50px;
 
         .warning-container {
+            visibility: hidden;
             position: absolute;
             bottom: 0;
             right: 0;
@@ -139,6 +140,7 @@ header {
         }
 
         .show-warning {
+            visibility: visible;
             opacity: 1;
             bottom: 10px;
             right: -10px;

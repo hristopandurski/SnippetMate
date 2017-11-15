@@ -3,6 +3,8 @@
 .snippet-details-sidebar {
     md-content {
         .code-container {
+            height: calc(73vh - 30px);
+
             .snippet-code {
                 overflow: auto;
                 min-height: 300px;
@@ -18,7 +20,7 @@
             }
         }
     }
-}//TEST
+}
 
 .snippet-details-container {
     position: absolute;

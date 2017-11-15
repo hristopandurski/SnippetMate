@@ -117,6 +117,7 @@ header .search-bar-container .icon-search {
 }
 
 .left-panel .labels-filter .warning-container {
+  visibility: hidden;
   position: absolute;
   bottom: 0;
   right: 0;
@@ -145,6 +146,7 @@ header .search-bar-container .icon-search {
 }
 
 .left-panel .labels-filter .show-warning {
+  visibility: visible;
   opacity: 1;
   bottom: 10px;
   right: -10px;
@@ -265,6 +267,10 @@ header .search-bar-container .icon-search {
   margin-top: 20px;
 }
 
+.snippet-details-sidebar md-content .code-container {
+  height: calc(73vh - 30px);
+}
+
 .snippet-details-sidebar md-content .code-container .snippet-code {
   overflow: auto;
   min-height: 300px;
@@ -374,6 +380,7 @@ md-toolbar:not(.md-menu-toolbar) {
   background-color: white;
   border: 1px solid #ccc;
 }
+
 
 .flex {
   display: -ms-flexbox;
@@ -729,11 +736,6 @@ input.md-input:-webkit-autofill:active {
   box-sizing: border-box;
 }
 
-
-#edit-code-box {
-  height: calc(60vh - 110px);
-}
-
 .labels-container {
   padding: 20px 0;
 }
@@ -765,6 +767,10 @@ input.md-input:-webkit-autofill:active {
 
 .labels-container .angular-color-picker > ._hues {
   width: 22px;
+}
+
+#edit-code-box {
+  height: calc(60vh - 110px);
 }
 
 .remodal-wrapper .remodal {
@@ -906,7 +912,7 @@ snippet-component md-card md-card-footer {
   background-color: #f7f7f7;
   border-radius: 5px;
   border: 1px solid rgba(0, 0, 0, 0.15);
-  max-height: 600px;
+  max-height: 670px;
 }
 
 .code-container .snippet-code {

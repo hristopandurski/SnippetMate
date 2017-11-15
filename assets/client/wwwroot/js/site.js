@@ -16,12 +16,12 @@
                     url: '/',
                     controller: 'HomeController',
                     templateUrl: 'app/home/home.html',
-                    controllerAs: 'vm',
-                    resolve: {
-                        init: function(IsAuthenticated) {
-                            IsAuthenticated.isLogged();
-                        }
-                    }
+                    controllerAs: 'vm'
+                    // resolve: {
+                    //     init: function(IsAuthenticated) {
+                    //         IsAuthenticated.isLogged();
+                    //     }
+                    // }
                 })
 
                 .state('snippet-details', {
@@ -29,12 +29,12 @@
                     parent: 'home',
                     controller: 'SnippetDetailsController',
                     templateUrl: 'app/snippet-details/snippet-details.html',
-                    controllerAs: 'vm',
-                    resolve: {
-                        init: function(IsAuthenticated) {
-                            IsAuthenticated.isLogged();
-                        }
-                    }
+                    controllerAs: 'vm'
+                    // resolve: {
+                    //     init: function(IsAuthenticated) {
+                    //         IsAuthenticated.isLogged();
+                    //     }
+                    // }
                 })
 
                 .state('login', {

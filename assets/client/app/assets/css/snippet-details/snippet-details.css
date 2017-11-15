@@ -1,3 +1,7 @@
+.snippet-details-sidebar md-content .code-container {
+  height: calc(73vh - 30px);
+}
+
 .snippet-details-sidebar md-content .code-container .snippet-code {
   overflow: auto;
   min-height: 300px;

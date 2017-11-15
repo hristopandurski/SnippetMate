@@ -51,8 +51,6 @@
                     controllerAs: 'vm'
                 });
 
-            //TODO: change the interceptor's logic
             //$httpProvider.interceptors.push('myHttpInterceptor');
-
         });
 })();

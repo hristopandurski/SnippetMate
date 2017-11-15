@@ -117,6 +117,7 @@ header .search-bar-container .icon-search {
 }
 
 .left-panel .labels-filter .warning-container {
+  visibility: hidden;
   position: absolute;
   bottom: 0;
   right: 0;
@@ -145,6 +146,7 @@ header .search-bar-container .icon-search {
 }
 
 .left-panel .labels-filter .show-warning {
+  visibility: visible;
   opacity: 1;
   bottom: 10px;
   right: -10px;

@@ -33,6 +33,8 @@
 
         vm.$mdToast = $mdToast;
 
+        vm.$location = $location;
+
         // Show the snippets created by the logged in user.
         vm.filterUserSnippets = () => {
 
@@ -43,6 +45,7 @@
                         $location.path('/login');
                     }
 
+                    // Parse the label property stored in the Snippets table
                     $(response).each(function(i, obj) {
                         $(obj.labels).each(function(z, label) {
                             response[i].labels[z] = JSON.parse(label);
@@ -210,7 +213,7 @@
         userService.GetById()
             .then(function(res) {
                 if (res.error) {
-                    vm.showError(res.errorMessage);
+                    vm.$location.path('/login');
                     return;
                 }
 

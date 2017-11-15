@@ -38,19 +38,20 @@ module.exports.policies = {
     // },
     //
     // AuthController: {
-    //     'login': ['isLoggedIn'],
-    //     'logout': ['sessionAuth']
+    //     '*': 'passport'
     // },
     //
     // UsersController: {
-    //     '*': 'isLoggedIn'
+    //     '*': 'passport'
     // }
+
     /***************************************************************************
     *                                                                          *
     * Here's an example of mapping some policies to run before a controller    *
     * and its actions                                                          *
     *                                                                          *
     ***************************************************************************/
+
     // RabbitController: {
 
     // Apply the `false` policy as the default for all of RabbitController's actions

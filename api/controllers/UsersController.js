@@ -94,7 +94,6 @@ module.exports = {
             if (err) return res.negotiate(err);
 
             if (!user) {
-
                 return res.json({
                     error: true,
                     errorMessage: 'User is not logged in.'
