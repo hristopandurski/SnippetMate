@@ -16,12 +16,12 @@
                     url: '/',
                     controller: 'HomeController',
                     templateUrl: 'app/home/home.html',
-                    controllerAs: 'vm'
-                    // resolve: {
-                    //     init: function(IsAuthenticated) {
-                    //         IsAuthenticated.isLogged();
-                    //     }
-                    // }
+                    controllerAs: 'vm',
+                    resolve: {
+                        init: function(IsAuthenticated) {
+                            IsAuthenticated.isLogged();
+                        }
+                    }
                 })
 
                 .state('snippet-details', {
@@ -29,12 +29,12 @@
                     parent: 'home',
                     controller: 'SnippetDetailsController',
                     templateUrl: 'app/snippet-details/snippet-details.html',
-                    controllerAs: 'vm'
-                    // resolve: {
-                    //     init: function(IsAuthenticated) {
-                    //         IsAuthenticated.isLogged();
-                    //     }
-                    // }
+                    controllerAs: 'vm',
+                    resolve: {
+                        init: function(IsAuthenticated) {
+                            IsAuthenticated.isLogged();
+                        }
+                    }
                 })
 
                 .state('login', {
@@ -51,9 +51,7 @@
                     controllerAs: 'vm'
                 });
 
-            //TODO: change the interceptor's logic
             //$httpProvider.interceptors.push('myHttpInterceptor');
-
         });
 })();
 
@@ -92,6 +90,8 @@
 
         vm.$mdToast = $mdToast;
 
+        vm.$location = $location;
+
         // Show the snippets created by the logged in user.
         vm.filterUserSnippets = () => {
 
@@ -102,6 +102,7 @@
                         $location.path('/login');
                     }
 
+                    // Parse the label property stored in the Snippets table
                     $(response).each(function(i, obj) {
                         $(obj.labels).each(function(z, label) {
                             response[i].labels[z] = JSON.parse(label);
@@ -269,7 +270,7 @@
         userService.GetById()
             .then(function(res) {
                 if (res.error) {
-                    vm.showError(res.errorMessage);
+                    vm.$location.path('/login');
                     return;
                 }
 
@@ -387,25 +388,19 @@
             vm.editingSnippet = !vm.editingSnippet;
         };
 
-        /**
-        * Get the edited snipet from the local storage and close the editing panel.
-        */
+        // Get the edited snipet from the local storage and close the editing panel.
         vm.onEdit = () => {
             vm.filterSelectedSnippet();
 
             vm.isEditing();
         };
 
-        /**
-        * Close the editing panel.
-        */
+        // Close the editing panel.
         vm.onCancel = () => {
             vm.isEditing();
         };
 
-        /**
-        * Delete the snippet.
-        */
+        // Delete the snippet.
         vm.onDelete = () => {
             let data = {
                 id: vm.snippet.id
@@ -430,9 +425,7 @@
             $location.path('/');
         };
 
-        /**
-        * Update the starred condition of the snippet.
-        */
+        // Update the starred condition of the snippet.
         vm.starSnippet = (event) => {
             let $icon = $(event.target),
                 data = {
@@ -460,9 +453,7 @@
                 });
         };
 
-        /**
-        * Opens up the tweet window so the user can share the tweet.
-        */
+        // Opens up the tweet window so the user can share the tweet.
         vm.snippetTweet = () => {
             window.open('https://twitter.com/share?url=' + escape(window.location.href) +
                         '&text=' + vm.snippet.title, '',
@@ -491,9 +482,7 @@
         };
     }
 
-    /**
-    * Get the data related to the opened snippet.
-    */
+    // Get the data related to the opened snippet.
     SnippetDetailsController.prototype.filterSelectedSnippet = function() {
         let vm = this,
             editor,
@@ -516,6 +505,24 @@
                 console.log('Error in fetching the opened snippet.');
             });
     };
+})();
+
+(function() {
+    'use strict';
+
+    angular.module('app.directives.editor-value', []).directive('editorValue', function() {
+        return {
+            restrict: 'A',
+            link: function(scope, element, attrs) {
+                var snippet = ace.edit(element[0]);
+
+                snippet.setTheme('ace/theme/textmate');
+                snippet.setReadOnly(true);
+                snippet.setValue(attrs.editorValue, -1);
+                editor.$blockScrolling = Infinity;
+            }
+        };
+    });
 })();
 
 (function() {
@@ -731,24 +738,26 @@
         .module('app.services.interceptor', [])
         .factory('myHttpInterceptor', myHttpInterceptor);
 
-    myHttpInterceptor.$inject = ['$location', '$injector'];
-    function myHttpInterceptor($location, $injector) {
-        return {
-            // 'request': function(config) {
-            //
-            //     //injected manually to get around circular dependency problem.
-            //     var AuthenticationService = $injector.get('AuthenticationService'),
-            //         currentUser = AuthenticationService.GetCurrentUser();
-            //
-            //     if (currentUser) {
-            //         config.headers['Authorization'] = 'Base ' + currentUser.authdata;
-            //     } else {
-            //         config.headers['Authorization'] = 'Base';
-            //     }
-            //
-            //     return config;
-            // }
+    myHttpInterceptor.$inject = ['$q', '$location', '$injector'];
+    function myHttpInterceptor($q, $location, $injector) {
+        var interceptor = {};
+
+        var _request = function(config) {
+            //success logic here
+            return config;
         };
+
+        var _responseError = function(rejection) {
+            //error here. for example server respond with 401
+            $location.path('/login');
+
+            return $q.reject(rejection);
+        };
+
+        interceptor.request = _request;
+        interceptor.responseError = _responseError;
+
+        return interceptor;
     };
 }());
 
@@ -1248,6 +1257,7 @@
 
             vm.snippetCode = ace.edit('edit-code-box');
             vm.snippetCode.setTheme('ace/theme/textmate');
+            vm.snippetCode.$blockScrolling = Infinity;
 
             // set the language for the code editor box
             if (language == 'js') {
@@ -1575,6 +1585,7 @@
             vm.snippetCode = ace.edit('editor');
             vm.snippetCode.setTheme('ace/theme/textmate');
             vm.snippetCode.getSession().setMode('ace/mode/javascript');
+            vm.snippetCode.$blockScrolling = Infinity;
         };
 
         vm.getLabels = () => {
@@ -1661,25 +1672,11 @@
 (function() {
     'use strict';
 
-    angular.module('app.components.snippet', []).component('snippetComponent', {
+    angular.module('app.components.snippet', ['app.directives.editor-value']).component('snippetComponent', {
         templateUrl: 'app/shared/components/snippet/snippet.component.html',
-        controller: snippetComponentController,
         controllerAs: 'scc',
         bindings: {
             snippet: '<'
         }
     });
-
-    snippetComponentController.$inject = ['$timeout'];
-    function snippetComponentController($timeout) {
-        var vm = this;
-
-        $timeout(function() {
-            $('.snippet-card').each(function(i, item) {
-                var snippet = ace.edit(item);
-                snippet.setTheme('ace/theme/textmate');
-                snippet.setReadOnly(true);
-            });
-        }, 10);
-    }
 })();

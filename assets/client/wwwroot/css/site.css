@@ -48,6 +48,12 @@ header .search-bar-container .icon-search {
   cursor: pointer;
 }
 
+.logo {
+  width: 35px;
+  height: 17px;
+  margin-left: 10px;
+}
+
 .main-container {
   height: calc(100% - 50px);
 }
@@ -380,7 +386,6 @@ md-toolbar:not(.md-menu-toolbar) {
   background-color: white;
   border: 1px solid #ccc;
 }
-
 
 .flex {
   display: -ms-flexbox;
@@ -736,6 +741,11 @@ input.md-input:-webkit-autofill:active {
   box-sizing: border-box;
 }
 
+
+#edit-code-box {
+  height: calc(60vh - 110px);
+}
+
 .labels-container {
   padding: 20px 0;
 }
@@ -769,8 +779,75 @@ input.md-input:-webkit-autofill:active {
   width: 22px;
 }
 
-#edit-code-box {
-  height: calc(60vh - 110px);
+snippet-component {
+  width: 100%;
+}
+
+snippet-component md-card {
+  transition: 1s all;
+  box-shadow: 0px 0px 6px 1px #ccc;
+  width: 32%;
+  display: inline-block;
+  cursor: pointer;
+}
+
+@media all and (max-width: 1120px) {
+  snippet-component md-card {
+    width: 98%;
+    display: block;
+  }
+}
+
+@media all and (min-width: 1121px) and (max-width: 1700px) {
+  snippet-component md-card {
+    width: 48%;
+  }
+}
+
+snippet-component md-card .code-container {
+  height: 150px;
+}
+
+snippet-component md-card md-card-title {
+  background-color: #5CAEE9;
+  color: #fff;
+}
+
+snippet-component md-card md-card-title .clock-icon {
+  margin-right: 7px;
+}
+
+snippet-component md-card md-card-content {
+  padding: 0;
+}
+
+snippet-component md-card md-card-content .ace_cursor-layer,
+snippet-component md-card md-card-content .ace_hidden-cursors {
+  display: none;
+}
+
+snippet-component md-card md-card-content .ace_scroller {
+  cursor: pointer;
+}
+
+snippet-component md-card md-card-footer {
+  min-height: 48px;
+}
+
+.code-container {
+  margin: 16px;
+  background-color: #f7f7f7;
+  border-radius: 5px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  max-height: 670px;
+}
+
+.code-container .snippet-code {
+  width: 100%;
+  height: 100%;
+  font-family: consolas;
+  padding-top: 10px;
+  overflow: hidden;
 }
 
 .remodal-wrapper .remodal {
@@ -850,75 +927,4 @@ md-checkbox.md-checked .md-ink-ripple {
 
 .new-snippet-footer .cancel-btn {
   padding: 5px 15px;
-}
-
-snippet-component {
-  width: 100%;
-}
-
-snippet-component md-card {
-  transition: 1s all;
-  box-shadow: 0px 0px 6px 1px #ccc;
-  width: 32%;
-  display: inline-block;
-  cursor: pointer;
-}
-
-@media all and (max-width: 1120px) {
-  snippet-component md-card {
-    width: 98%;
-    display: block;
-  }
-}
-
-@media all and (min-width: 1121px) and (max-width: 1700px) {
-  snippet-component md-card {
-    width: 48%;
-  }
-}
-
-snippet-component md-card .code-container {
-  height: 150px;
-}
-
-snippet-component md-card md-card-title {
-  background-color: #5CAEE9;
-  color: #fff;
-}
-
-snippet-component md-card md-card-title .clock-icon {
-  margin-right: 7px;
-}
-
-snippet-component md-card md-card-content {
-  padding: 0;
-}
-
-snippet-component md-card md-card-content .ace_cursor-layer,
-snippet-component md-card md-card-content .ace_hidden-cursors {
-  display: none;
-}
-
-snippet-component md-card md-card-content .ace_scroller {
-  cursor: pointer;
-}
-
-snippet-component md-card md-card-footer {
-  min-height: 48px;
-}
-
-.code-container {
-  margin: 16px;
-  background-color: #f7f7f7;
-  border-radius: 5px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  max-height: 670px;
-}
-
-.code-container .snippet-code {
-  width: 100%;
-  height: 100%;
-  font-family: consolas;
-  padding-top: 10px;
-  overflow: hidden;
 }
