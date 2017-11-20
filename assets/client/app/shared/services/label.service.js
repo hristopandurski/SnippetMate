@@ -25,6 +25,24 @@
             return deferred.promise;
         };
 
+        self.getOne = (data) => {
+            var deferred = $q.defer();
+
+            $http({
+                method: 'GET',
+                url: '/labels/getOne',
+                params: data
+            })
+            .then(function(res) {
+                return deferred.resolve(res.data);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
+
+            return deferred.promise;
+        };
+
         self.setLabels = (data) => {
             var deferred = $q.defer();
 

@@ -50,6 +50,7 @@ module.exports.routes = {
     'DELETE /snippets/delete': 'SnippetsController.delete',
 
     'GET /labels/get': 'LabelsController.get',
+    'GET /labels/getOne': 'LabelsController.getOne',
     'POST /labels/create': 'LabelsController.create',
     'PUT /labels/edit': 'LabelsController.edit',
 

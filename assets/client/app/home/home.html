@@ -65,4 +65,4 @@
     <new-snippet-component on-create="vm.filterUserSnippets()"></new-snippet-component>
 </section>
 
-<labels-component on-create="vm.filterUserLabels()" selected-label="vm.selectedLabel"></labels-component>
+<labels-component on-create="vm.filterUserLabels()" after-edit="vm.filterUserSnippets()" selected-label="vm.selectedLabel"></labels-component>

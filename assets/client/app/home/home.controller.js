@@ -45,13 +45,6 @@
                         $location.path('/login');
                     }
 
-                    // Parse the label property stored in the Snippets table
-                    $(response).each(function(i, obj) {
-                        $(obj.labels).each(function(z, label) {
-                            response[i].labels[z] = JSON.parse(label);
-                        });
-                    });
-
                     vm.snippets = response;
                 })
                 .catch(function(err) {

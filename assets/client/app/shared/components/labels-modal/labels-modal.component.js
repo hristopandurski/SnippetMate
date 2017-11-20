@@ -8,6 +8,7 @@
             controllerAs: 'lbc',
             bindings: {
                 onCreate: '&',
+                afterEdit: '&',
                 selectedLabel: '<'
             }
         });
@@ -89,8 +90,11 @@
                 .then(function(data) {
                     $('#new-label-modal').remodal().close();
 
-                    // call filterUserSnippets function from parent controller in order to update the shown labels
+                    // call filterUserLabels function from parent controller in order to update the shown labels
                     vm.onCreate();
+
+                    // call filterUserSnippets function from parent controller in order to update the shown labels
+                    vm.afterEdit();
                 })
                 .catch(function(err) {
                     vm.showError('Could not create a label.');

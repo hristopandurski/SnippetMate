@@ -222,6 +222,7 @@
     */
     newSnippetComponentController.prototype.getSelectedLabels = function() {
         var vm = this,
+            labelsArray = [],
             result = [],
             isSelected;
 
@@ -229,16 +230,15 @@
             return [];
         }
 
-        return result = vm.labels.filter(function(obj) {
-            isSelected = false;
+        labelsArray = vm.labels.filter(function(obj) {
 
             $(vm.selectedLabels).each(function(i, id) {
                 if (obj.id === id) {
-                    isSelected = true;
+                    result.push(id);
                 }
             });
-
-            return isSelected;
         });
+
+        return result;
     };
 })();

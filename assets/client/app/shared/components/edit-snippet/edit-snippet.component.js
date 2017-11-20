@@ -30,115 +30,9 @@
 
         vm.isInitial = true;
 
-        vm.toggle = function(item, list) {
-            var idx = list.indexOf(item);
-            if (idx > -1) {
-                list.splice(idx, 1);
-            } else {
-                list.push(item);
-            }
-
-            vm.isInitial = false;
-        };
-
-        vm.exists = function(item, list) {
-            let parsed;
-
-            if (vm.isInitial) {
-                var isSelected = false;
-
-                $(vm.snippet.labels).each(function(i, label) {
-                    parsed = JSON.parse(label);
-
-                    if (parsed.id === item) {
-                        isSelected = true;
-                    }
-                });
-
-                return isSelected;
-            }
-
-            return list.indexOf(item) > -1;
-        };
-
-        vm.isIndeterminate = function() {
-            return (vm.selectedLabels.length !== 0 && vm.selectedLabels.length !== vm.labelIds.length);
-        };
-
-        vm.isChecked = function() {
-            if (vm.isInitial) {
-                return vm.snippet.labels.length === vm.labelIds.length;
-            }
-
-            return vm.selectedLabels.length === vm.labelIds.length;
-        };
-
-        vm.toggleAll = function() {
-            if (vm.selectedLabels.length === vm.labelIds.length) {
-                vm.selectedLabels = [];
-            } else if (vm.selectedLabels.length === 0 || vm.selectedLabels.length > 0) {
-                vm.selectedLabels = vm.labelIds.slice(0);
-            }
-
-            vm.isInitial = false;
-        };
-
-        vm.changedLanguage = () => {
-            var title = vm.data.title,
-                language = vm.data.language,
-                namePart = title.substring(0, title.indexOf('.')),
-                editorMode = 'ace/mode/' + language;
-
-            if (namePart === '' && title === '') {
-                namePart = 'myfilename';
-            } else if (title.indexOf('.') === -1) {
-                namePart = title;
-            }
-
-            // apply the edited language to the title
-            vm.data.title = namePart + '.' + language;
-
-            // set the language for the code editor box
-            if (language == 'js') {
-                editorMode = 'ace/mode/javascript';
-            }
-
-            vm.snippetCode.getSession().setMode(editorMode);
-        };
-
-        vm.checkTitle = () => {
-            var title = vm.data.title ? vm.data.title : '',
-                language = vm.data.language,
-                namePart = title.substring(0, title.indexOf('.'));
-
-            if (namePart === '' && title.indexOf('.') !== -1) {
-                vm.data.title =  'myfilename.' + language;
-            } else if (namePart === '' && !!title) {
-                vm.data.title +=  '.' + language;
-            }
-        };
-
-        vm.codeEditorInit = () => {
-            var language = vm.data.language,
-                editorMode = 'ace/mode/' + language;
-
-            vm.snippetCode = ace.edit('edit-code-box');
-            vm.snippetCode.setTheme('ace/theme/textmate');
-            vm.snippetCode.$blockScrolling = Infinity;
-
-            // set the language for the code editor box
-            if (language == 'js') {
-                editorMode = 'ace/mode/javascript';
-            }
-
-            vm.snippetCode.getSession().setMode(editorMode);
-        };
-
         vm.edit = () => {
-            var allSnippets;
-
             vm.data.code = vm.snippetCode.getValue();
-            vm.data.labels = vm.getLabels();
+            vm.data.labels = vm.selectedLabels;
 
             SnippetService.edit(vm.data)
                 .then(function(res) {
@@ -151,11 +45,9 @@
                 });
         };
 
-        vm.cancel = () => {
-            vm.onCancel();
-        };
-
         vm.$onInit = () => {
+            let parsedLabel;
+
             // get all labels
             LabelService.getLabels()
                 .then(function(response) {
@@ -173,34 +65,145 @@
 
             // get the labels selected for the opened snippet
             $(vm.snippet.labels).each(function(index, item) {
-                vm.selectedLabels.push(item.id);
+                parsedLabel = parseInt(item);
+
+                vm.selectedLabels.push(parsedLabel);
             });
 
-            $timeout(function() {
-                vm.codeEditorInit();
-            }, 10);
+            vm.codeEditorInit();
         };
     };
 
-    /*
-    * Compare each label to the the selectedLabels array and determine
-    * which of the labels are selected
+    editSnippetComponentController.prototype.cancel = function() {
+        this.onCancel();
+    };
+
+    // Initialize ace editor with its relevant settings.
+    editSnippetComponentController.prototype.codeEditorInit = function() {
+        let vm = this,
+            language = vm.data.language,
+            editorMode = 'ace/mode/' + language;
+
+        vm.snippetCode = ace.edit('edit-code-box');
+        vm.snippetCode.setTheme('ace/theme/textmate');
+        vm.snippetCode.$blockScrolling = Infinity;
+        vm.snippetCode.setValue(vm.data.code, -1);
+
+        // set the language for the code editor box
+        if (language == 'js') {
+            editorMode = 'ace/mode/javascript';
+        }
+
+        vm.snippetCode.getSession().setMode(editorMode);
+    };
+
+    // Appends the selected language to the filename.
+    editSnippetComponentController.prototype.checkTitle = function() {
+        let vm = this,
+            title = vm.data.title ? vm.data.title : '',
+            language = vm.data.language,
+            namePart = title.substring(0, title.indexOf('.'));
+
+        if (namePart === '' && title.indexOf('.') !== -1) {
+            vm.data.title =  'myfilename.' + language;
+        } else if (namePart === '' && !!title) {
+            vm.data.title +=  '.' + language;
+        }
+    };
+
+    /**
+    * Adds the clicked label to the list of selected.
+    *
+    * @param item {Number}
+    * @param list {array}
     */
-    editSnippetComponentController.prototype.getLabels = function() {
-        var vm = this,
-            result = [],
-            isSelected;
+    editSnippetComponentController.prototype.toggle = function(item, list) {
+        let vm = this,
+            idx = list.indexOf(item);
 
-        return result = vm.labels.filter(function(obj) {
-            isSelected = false;
+        if (idx > -1) {
+            list.splice(idx, 1);
+        } else {
+            list.push(item);
+        }
 
-            $(vm.selectedLabels).each(function(i, id) {
-                if (obj.id === id) {
+        vm.isInitial = false;
+    };
+
+    /**
+    * Pre-selects the labels for the snippet.
+    *
+    * @param itemId {Number}
+    * @param list {array}
+    * @return {boolean}
+    */
+    editSnippetComponentController.prototype.exists = function(itemId, list) {
+        let vm = this;
+
+        if (vm.isInitial) {
+            var isSelected = false;
+
+            $(vm.snippet.labels).each(function(i, id) {
+                if (parseInt(id) === itemId) {
                     isSelected = true;
                 }
             });
 
             return isSelected;
-        });
+        }
+
+        return list.indexOf(itemId) > -1;
+    };
+
+    editSnippetComponentController.prototype.isIndeterminate = function() {
+        let vm = this;
+
+        return (vm.selectedLabels.length !== 0 && vm.selectedLabels.length !== vm.labelIds.length);
+    };
+
+    editSnippetComponentController.prototype.isChecked = function() {
+        let vm = this;
+
+        if (vm.isInitial) {
+            return vm.snippet.labels.length === vm.labelIds.length;
+        }
+
+        return vm.selectedLabels.length === vm.labelIds.length;
+    };
+
+    editSnippetComponentController.prototype.toggleAll = function() {
+        let vm = this;
+
+        if (vm.selectedLabels.length === vm.labelIds.length) {
+            vm.selectedLabels = [];
+        } else if (vm.selectedLabels.length === 0 || vm.selectedLabels.length > 0) {
+            vm.selectedLabels = vm.labelIds.slice(0);
+        }
+
+        vm.isInitial = false;
+    };
+
+    editSnippetComponentController.prototype.changedLanguage = function() {
+        let vm = this,
+            title = vm.data.title,
+            language = vm.data.language,
+            namePart = title.substring(0, title.indexOf('.')),
+            editorMode = 'ace/mode/' + language;
+
+        if (namePart === '' && title === '') {
+            namePart = 'myfilename';
+        } else if (title.indexOf('.') === -1) {
+            namePart = title;
+        }
+
+        // apply the edited language to the title
+        vm.data.title = namePart + '.' + language;
+
+        // set the language for the code editor box
+        if (language == 'js') {
+            editorMode = 'ace/mode/javascript';
+        }
+
+        vm.snippetCode.getSession().setMode(editorMode);
     };
 }());

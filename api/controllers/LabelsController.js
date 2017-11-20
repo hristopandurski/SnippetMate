@@ -35,6 +35,26 @@ module.exports = {
     },
 
     /**
+     * Gets a specific label created by the logged in user.
+     *
+     * @param {object} req
+     * @param {object} res
+     */
+    getOne: function(req, res) {
+        var params =  req.allParams();;
+
+        Labels.findOne({
+            id: params.id
+        }).exec(function(err, label) {
+            if (err) {
+                return res.notFound(err);
+            }
+
+            return res.json(label);
+        });
+    },
+
+    /**
      * Creates a new label.
      *
      * @param {object} req
@@ -61,10 +81,7 @@ module.exports = {
     edit: function(req, res) {
         var params = req.allParams();
 
-        console.log('start finding the label');
-
         if (!(params.id)) {
-            console.log('baad request!');
             return res.badRequest('Update attempt failed, invalid data.');
         }
 
@@ -76,7 +93,6 @@ module.exports = {
             .exec(function(err, label) {
                 if (err) return res.notFound();
 
-                console.log('ffound the label', label.id);
                 if (!label) {
                     return res.ok({
                         error: true,
@@ -90,8 +106,6 @@ module.exports = {
                     });
                 }
 
-                console.log('starting the update', params.id);
-
                 Labels.update(params.id, params).exec(function(err, updated) {
                     if (!err && updated.length) {
                         console.log('ending the update', updated.id);
@@ -104,14 +118,11 @@ module.exports = {
                             .exec(function(err, updatedLabel) {
                                 if (err) return res.notFound();
 
-                                console.log('in the end', updatedLabel.id);
-
                                 return res.json({
                                     notice: 'Updated the label!'
                                 });
                             });
                     } else {
-                        console.log('bad requestss');
                         return res.badRequest(err);
                     }
                 });
