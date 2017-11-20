@@ -14,10 +14,11 @@
             }
         });
 
-    editSnippetComponentController.$inject = ['$timeout', '$filter', 'LanguageService', 'SnippetService',
+    editSnippetComponentController.$inject = ['$timeout', '$filter', '$mdToast', 'LanguageService', 'SnippetService',
                                               'LabelService'];
 
-    function editSnippetComponentController($timeout, $filter, LanguageService, SnippetService, LabelService) {
+    function editSnippetComponentController($timeout, $filter, $mdToast, LanguageService, SnippetService, LabelService) {
+        // Variables
         var vm = this;
 
         LanguageService.get().then(function(data) {
@@ -30,6 +31,9 @@
 
         vm.isInitial = true;
 
+        // Dependencies
+        vm.$mdToast = $mdToast;
+
         vm.edit = () => {
             vm.data.code = vm.snippetCode.getValue();
             vm.data.labels = vm.selectedLabels;
@@ -38,10 +42,12 @@
                 .then(function(res) {
                     vm.snippet = vm.data;
 
+                    vm.showToast('The snippet was successfully updated.', 'success');
+
                     vm.onEdit();
                 })
                 .catch(function(err) {
-                    console.log('Error when trying to edit the snippet.');
+                    vm.showToast('Error when trying to edit the snippet.', 'error');
                 });
         };
 
@@ -58,7 +64,7 @@
                     });
                 })
                 .catch(function() {
-                    console.log('Error in fetching the labels.');
+                    vm.showToast('Error in fetching the labels.', 'error');
                 });
 
             vm.data = angular.copy(vm.snippet);
@@ -205,5 +211,24 @@
         }
 
         vm.snippetCode.getSession().setMode(editorMode);
+    };
+
+    /**
+    * Show toaster.
+    *
+    * @param {String} message
+    * @param {String} toastClass
+    */
+    editSnippetComponentController.prototype.showToast = function(message, toastClass) {
+        var vm = this,
+            prefix = toastClass === 'error' ? 'Error: ' : 'Success: ';
+
+        vm.$mdToast.show(
+            vm.$mdToast.simple()
+                .textContent(prefix + message)
+                .position('bottom right')
+                .toastClass(toastClass)
+                .hideDelay(3000)
+        );
     };
 }());

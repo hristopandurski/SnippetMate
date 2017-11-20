@@ -79,21 +79,38 @@ module.exports = {
      * @param {object} res
      */
     star: function(req, res) {
-        var snippet = req.allParams();
+        var snippet = req.allParams(),
+            stateText = 'unstarred';
 
         if (!(snippet.id && snippet.isStarred)) {
             return res.badRequest('Update attempt failed, invalid data.');
         }
 
-        Snippets.update({id: snippet.id}, {isStarred: snippet.isStarred}).exec(function(err, updated) {
-
+        Snippets.update(snippet.id, snippet).exec(function(err, updated) {
             if (err) {
                 return res.negotiate(err);
             }
 
-            return res.json({
-                notice: 'Updated the snippet!'
-            });
+            if (updated.length) {
+                Snippets
+                    .findOne({
+                        id: snippet.id
+                    })
+                    .populateAll()
+                    .exec(function(err, updatedLabel) {
+                        if (err) return res.notFound();
+
+                        if (updatedLabel.isStarred) {
+                            stateText = 'starred';
+                        }
+
+                        return res.json({
+                            notice: 'The snippet is successfuly ' + stateText + '.'
+                        });
+                    });
+            } else {
+                return res.badRequest(err);
+            }
         });
     },
 

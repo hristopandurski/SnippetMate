@@ -664,6 +664,16 @@ md-toolbar:not(.md-menu-toolbar) {
   border: 1px solid #f16364;
 }
 
+md-toast.error .md-toast-content {
+  background-color: #181818;
+  border: 2px solid #f16364;
+}
+
+md-toast.success .md-toast-content {
+  background-color: #181818;
+  border: 2px solid #5CAEE9;
+}
+
 .label-container {
   margin-right: 6px;
 }

@@ -39,6 +39,23 @@
     border: 1px solid $error-red;
 }
 
+// Toast
+md-toast {
+    &.error {
+        .md-toast-content {
+            background-color: $left-panel-black;
+            border: 2px solid $error-red;
+        }
+    }
+
+    &.success {
+        .md-toast-content {
+            background-color: $left-panel-black;
+            border: 2px solid $main-color;
+        }
+    }
+}
+
 // Labels
 .label-container {
     margin-right: 6px;

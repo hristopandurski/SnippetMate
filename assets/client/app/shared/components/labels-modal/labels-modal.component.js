@@ -55,12 +55,12 @@
             UserService.GetById()
                 .then(function(user) {
                     if (!user) {
-                        vm.showError('No current user.');
+                        vm.showToast('No current user.', 'error');
                         return;
                     }
 
                     // set the userId of the new snippet equal to the current user id
-                    //newLabel.userId = user.id;
+                    newLabel.userId = user.id;
 
                     if (vm.isEditing) {
                         vm.updateLabel(newLabel);
@@ -71,15 +71,17 @@
                         .then(function(data) {
                             $('#new-label-modal').remodal().close();
 
+                            vm.showToast('The label was successfully created.', 'success');
+
                             // call filterUserSnippets function from parent controller in order to update the shown labels
                             vm.onCreate();
                         })
                         .catch(function(err) {
-                            vm.showError('Could not create a label.');
+                            vm.showToast('Could not create a label.', 'error');
                         });
                 })
                 .catch(function(err) {
-                    vm.showError('Could not fetch user id.');
+                    vm.showToast('Could not fetch user id.', 'error');
                 });
 
         };
@@ -90,6 +92,8 @@
                 .then(function(data) {
                     $('#new-label-modal').remodal().close();
 
+                    vm.showToast('The label was successfully updated.', 'success');
+
                     // call filterUserLabels function from parent controller in order to update the shown labels
                     vm.onCreate();
 
@@ -97,23 +101,26 @@
                     vm.afterEdit();
                 })
                 .catch(function(err) {
-                    vm.showError('Could not create a label.');
+                    vm.showToast('Could not create a label.', 'error');
                 });
         };
     }
 
     /**
-    * Show error toaster.
+    * Show toaster.
     *
     * @param {String} message
+    * @param {String} toastClass
     */
-    labelsComponentController.prototype.showError = function(message) {
-        var vm = this;
+    labelsComponentController.prototype.showToast = function(message, toastClass) {
+        var vm = this,
+            prefix = toastClass === 'error' ? 'Error: ' : 'Success: ';
 
         vm.$mdToast.show(
             vm.$mdToast.simple()
-                .textContent('Error: ' + message)
+                .textContent(prefix + message)
                 .position('bottom right')
+                .toastClass(toastClass)
                 .hideDelay(3000)
         );
     };

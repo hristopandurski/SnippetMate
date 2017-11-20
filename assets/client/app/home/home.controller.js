@@ -48,7 +48,7 @@
                     vm.snippets = response;
                 })
                 .catch(function(err) {
-                    vm.showError('Could not fetch snippets.');
+                    vm.showToast('Could not fetch snippets.', 'error');
                 });
         };
 
@@ -64,7 +64,7 @@
                     vm.labels = response;
                 })
                 .catch(function(err) {
-                    vm.showError('Could not fetch labels.');
+                    vm.showToast('Could not fetch labels.', 'error');
                 });
         };
 
@@ -116,7 +116,7 @@
                     }
                 })
                 .catch(function(err) {
-                    vm.showError('Could not filter snippets.');
+                    vm.showToast('Could not filter snippets.', 'error');
                 });
 
             $tab.siblings().removeClass('filter-selected');
@@ -163,7 +163,7 @@
                     $location.path('/login');
                 })
                 .catch(function(err) {
-                    vm.showError('Unable to sign out.');
+                    vm.showToast('Unable to sign out.', 'error');
                     $location.path('/login');
                 });
         };
@@ -178,17 +178,20 @@
     };
 
     /**
-    * Show error toaster.
+    * Show toaster.
     *
     * @param {String} message
+    * @param {String} toastClass
     */
-    HomeController.prototype.showError = function(message) {
-        var vm = this;
+    HomeController.prototype.showToast = function(message, toastClass) {
+        var vm = this,
+            prefix = toastClass === 'error' ? 'Error: ' : 'Success: ';
 
         vm.$mdToast.show(
             vm.$mdToast.simple()
-                .textContent('Error: ' + message)
+                .textContent(prefix + message)
                 .position('bottom right')
+                .toastClass(toastClass)
                 .hideDelay(3000)
         );
     };
@@ -224,7 +227,7 @@
                 vm.username = res.username;
             })
             .catch(function(err) {
-                vm.showError('Could not fetch username.');
+                vm.showToast('Could not fetch username.', 'error');
             });
     };
 })();

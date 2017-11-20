@@ -102,13 +102,6 @@
                         $location.path('/login');
                     }
 
-                    // Parse the label property stored in the Snippets table
-                    $(response).each(function(i, obj) {
-                        $(obj.labels).each(function(z, label) {
-                            response[i].labels[z] = JSON.parse(label);
-                        });
-                    });
-
                     vm.snippets = response;
                 })
                 .catch(function(err) {
@@ -136,6 +129,7 @@
         vm.selectFilter = (event) => {
             let $tab = $(event.delegateTarget),
                 value = $tab.text().trim(),
+                selectedItem = $tab.attr('data-id'),
                 result = [];
 
             if ($tab.hasClass('filter-selected')) {
@@ -168,12 +162,8 @@
 
                             // Filter depending on the selected label
                             $(vm.snippets).each(function(i, item) {
-                                $(item.labels).each(function(index, obj) {
-
-                                    // parse the stringified JSON
-                                    item.labels[index] = JSON.parse(obj);
-
-                                    if (item.labels[index].title === value) {
+                                $(item.labels).each(function(z, obj) {
+                                    if (obj === selectedItem) {
                                         result.push(item);
                                     }
                                 });
@@ -211,11 +201,15 @@
         };
 
         vm.editLabel = (ev) => {
-            let index = $(ev.target).attr('data-index'),
-                selectedLabel = vm.labels[index];
+            let index = $(ev.target).attr('data-index');
 
-            $scope.$broadcast('editLabel', selectedLabel);
-            $('#new-label-modal').remodal(modalOptions).open();
+            vm.selectedLabel = vm.labels[index];
+
+            // Using $timeout beacuse angular has not updated the selected-label value on the labels-modal-component.
+            $timeout(function() {
+                $scope.$broadcast('editLabel');
+                $('#new-label-modal').remodal(modalOptions).open();
+            }, 0);
 
             ev.stopPropagation();
         };
@@ -371,27 +365,23 @@
     'use strict';
 
     angular.module('app.snippet-details', ['app.components.edit-snippet', 'app.services.localStorage',
-                                           'app.services.snippet', 'app.services.starred'])
+                                           'app.services.snippet', 'app.services.starred', 'ngMaterial'])
            .controller('SnippetDetailsController', SnippetDetailsController);
 
     SnippetDetailsController.$inject = ['$stateParams', '$location', '$scope', '$filter', '$mdSidenav', '$timeout',
-                                        'LocalStorage', 'SnippetService', 'StarredService'];
+                                        '$mdToast', 'LocalStorage', 'SnippetService', 'StarredService'];
 
-    function SnippetDetailsController($stateParams, $location, $scope, $filter, $mdSidenav, $timeout, LocalStorage,
-                                      SnippetService, StarredService) {
+    function SnippetDetailsController($stateParams, $location, $scope, $filter, $mdSidenav, $timeout, $mdToast,
+                                      LocalStorage, SnippetService, StarredService) {
         var vm = this;
 
-        // dependencies
+        // Dependencies
         vm.$stateParams = $stateParams;
         vm.$filter = $filter;
         vm.SnippetService = SnippetService;
+        vm.$mdToast = $mdToast;
 
-        // global variables
-        vm.model = {
-            snippets: {},
-            starred: {}
-        };
-
+        // Variables
         vm.editingSnippet = false;
 
         vm.isEditing = () => {
@@ -453,13 +443,12 @@
                 vm.snippet.isStarred = true;
             }
 
-            SnippetService.star(data)
-                .then(function() {
-                    console.log('Starred the snippet successfully!');
+            SnippetService.star(vm.snippet)
+                .then(function(res) {
+                    vm.showToast(res.notice, 'success');
                 })
                 .catch(function(err) {
-                    // TODO: show error
-                    console.log(err);
+                    vm.showToast(err, 'error');
                 });
         };
 
@@ -491,6 +480,24 @@
             }, 0);
         };
     }
+
+    /**
+    * Show error toaster.
+    *
+    * @param {String} message
+    */
+    SnippetDetailsController.prototype.showToast = function(message, toastClass) {
+        var vm = this,
+            prefix = toastClass === 'error' ? 'Error: ' : 'Success: ';
+
+        vm.$mdToast.show(
+            vm.$mdToast.simple()
+                .textContent(prefix + message)
+                .position('bottom right')
+                .toastClass(toastClass)
+                .hideDelay(3000)
+        );
+    };
 
     // Get the data related to the opened snippet.
     SnippetDetailsController.prototype.filterSelectedSnippet = function() {
@@ -534,6 +541,50 @@
         };
     });
 })();
+
+(function() {
+    'use strict';
+
+    angular.module('app.components.snippet').filter('dateRange', function() {
+        return function(date) {
+            var fromDate = new Date(Date.parse(date)),
+                toDate = new Date(),
+                dayDifference = Math.floor((toDate - fromDate) / (1000 * 60 * 60 * 24)),
+                hrsDifference = Math.floor((toDate - fromDate) / (1000 * 60 * 60)),
+                minDifference = Math.floor((toDate - fromDate) / (1000 * 60)),
+                diff = 0;
+
+            // calculate whats the difference between the snippet's creation and now
+            if (dayDifference <= 0) {
+                if (hrsDifference <= 0) {
+                    if (minDifference <= 0) {
+                        diff = ' just now';
+                    } else {
+                        if (minDifference === 1) {
+                            diff = minDifference + ' minute ago';
+                        } else {
+                            diff = minDifference + ' minutes ago';
+                        }
+                    }
+                } else {
+                    if (hrsDifference === 1) {
+                        diff = hrsDifference + ' hour ago';
+                    } else {
+                        diff = hrsDifference + ' hours ago';
+                    }
+                }
+            } else {
+                if (dayDifference === 1) {
+                    diff = dayDifference + ' day ago';
+                } else {
+                    diff = dayDifference + ' days ago';
+                }
+            }
+
+            return diff;
+        };
+    });
+}());
 
 (function() {
     'use strict';
@@ -754,12 +805,48 @@
             return deferred.promise;
         };
 
+        self.getOne = (data) => {
+            var deferred = $q.defer();
+
+            $http({
+                method: 'GET',
+                url: '/labels/getOne',
+                params: data
+            })
+            .then(function(res) {
+                return deferred.resolve(res.data);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
+
+            return deferred.promise;
+        };
+
         self.setLabels = (data) => {
             var deferred = $q.defer();
 
             $http({
                 method: 'POST',
                 url: '/labels/create',
+                params: data
+            })
+            .then(function(res) {
+                return deferred.resolve(res.data);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
+
+            return deferred.promise;
+        };
+
+        self.edit = (data) => {
+            var deferred = $q.defer();
+
+            $http({
+                method: 'PUT',
+                url: '/labels/edit',
                 params: data
             })
             .then(function(res) {
@@ -1077,50 +1164,6 @@
 (function() {
     'use strict';
 
-    angular.module('app.components.snippet').filter('dateRange', function() {
-        return function(date) {
-            var fromDate = new Date(Date.parse(date)),
-                toDate = new Date(),
-                dayDifference = Math.floor((toDate - fromDate) / (1000 * 60 * 60 * 24)),
-                hrsDifference = Math.floor((toDate - fromDate) / (1000 * 60 * 60)),
-                minDifference = Math.floor((toDate - fromDate) / (1000 * 60)),
-                diff = 0;
-
-            // calculate whats the difference between the snippet's creation and now
-            if (dayDifference <= 0) {
-                if (hrsDifference <= 0) {
-                    if (minDifference <= 0) {
-                        diff = ' just now';
-                    } else {
-                        if (minDifference === 1) {
-                            diff = minDifference + ' minute ago';
-                        } else {
-                            diff = minDifference + ' minutes ago';
-                        }
-                    }
-                } else {
-                    if (hrsDifference === 1) {
-                        diff = hrsDifference + ' hour ago';
-                    } else {
-                        diff = hrsDifference + ' hours ago';
-                    }
-                }
-            } else {
-                if (dayDifference === 1) {
-                    diff = dayDifference + ' day ago';
-                } else {
-                    diff = dayDifference + ' days ago';
-                }
-            }
-
-            return diff;
-        };
-    });
-}());
-
-(function() {
-    'use strict';
-
     angular.module('app.utils.isAuthenticated', ['app.services.user']).service('IsAuthenticated', IsAuthenticated);
 
     IsAuthenticated.$inject = ['UserService', '$location'];
@@ -1173,115 +1216,9 @@
 
         vm.isInitial = true;
 
-        vm.toggle = function(item, list) {
-            var idx = list.indexOf(item);
-            if (idx > -1) {
-                list.splice(idx, 1);
-            } else {
-                list.push(item);
-            }
-
-            vm.isInitial = false;
-        };
-
-        vm.exists = function(item, list) {
-            let parsed;
-
-            if (vm.isInitial) {
-                var isSelected = false;
-
-                $(vm.snippet.labels).each(function(i, label) {
-                    parsed = JSON.parse(label);
-
-                    if (parsed.id === item) {
-                        isSelected = true;
-                    }
-                });
-
-                return isSelected;
-            }
-
-            return list.indexOf(item) > -1;
-        };
-
-        vm.isIndeterminate = function() {
-            return (vm.selectedLabels.length !== 0 && vm.selectedLabels.length !== vm.labelIds.length);
-        };
-
-        vm.isChecked = function() {
-            if (vm.isInitial) {
-                return vm.snippet.labels.length === vm.labelIds.length;
-            }
-
-            return vm.selectedLabels.length === vm.labelIds.length;
-        };
-
-        vm.toggleAll = function() {
-            if (vm.selectedLabels.length === vm.labelIds.length) {
-                vm.selectedLabels = [];
-            } else if (vm.selectedLabels.length === 0 || vm.selectedLabels.length > 0) {
-                vm.selectedLabels = vm.labelIds.slice(0);
-            }
-
-            vm.isInitial = false;
-        };
-
-        vm.changedLanguage = () => {
-            var title = vm.data.title,
-                language = vm.data.language,
-                namePart = title.substring(0, title.indexOf('.')),
-                editorMode = 'ace/mode/' + language;
-
-            if (namePart === '' && title === '') {
-                namePart = 'myfilename';
-            } else if (title.indexOf('.') === -1) {
-                namePart = title;
-            }
-
-            // apply the edited language to the title
-            vm.data.title = namePart + '.' + language;
-
-            // set the language for the code editor box
-            if (language == 'js') {
-                editorMode = 'ace/mode/javascript';
-            }
-
-            vm.snippetCode.getSession().setMode(editorMode);
-        };
-
-        vm.checkTitle = () => {
-            var title = vm.data.title ? vm.data.title : '',
-                language = vm.data.language,
-                namePart = title.substring(0, title.indexOf('.'));
-
-            if (namePart === '' && title.indexOf('.') !== -1) {
-                vm.data.title =  'myfilename.' + language;
-            } else if (namePart === '' && !!title) {
-                vm.data.title +=  '.' + language;
-            }
-        };
-
-        vm.codeEditorInit = () => {
-            var language = vm.data.language,
-                editorMode = 'ace/mode/' + language;
-
-            vm.snippetCode = ace.edit('edit-code-box');
-            vm.snippetCode.setTheme('ace/theme/textmate');
-            vm.snippetCode.$blockScrolling = Infinity;
-
-            // set the language for the code editor box
-            if (language == 'js') {
-                editorMode = 'ace/mode/javascript';
-            }
-
-            vm.snippetCode.getSession().setMode(editorMode);
-        };
-
         vm.edit = () => {
-            var allSnippets;
-
             vm.data.code = vm.snippetCode.getValue();
-            vm.data.labels = vm.getLabels();
+            vm.data.labels = vm.selectedLabels;
 
             SnippetService.edit(vm.data)
                 .then(function(res) {
@@ -1294,11 +1231,9 @@
                 });
         };
 
-        vm.cancel = () => {
-            vm.onCancel();
-        };
-
         vm.$onInit = () => {
+            let parsedLabel;
+
             // get all labels
             LabelService.getLabels()
                 .then(function(response) {
@@ -1316,35 +1251,146 @@
 
             // get the labels selected for the opened snippet
             $(vm.snippet.labels).each(function(index, item) {
-                vm.selectedLabels.push(item.id);
+                parsedLabel = parseInt(item);
+
+                vm.selectedLabels.push(parsedLabel);
             });
 
-            $timeout(function() {
-                vm.codeEditorInit();
-            }, 10);
+            vm.codeEditorInit();
         };
     };
 
-    /*
-    * Compare each label to the the selectedLabels array and determine
-    * which of the labels are selected
+    editSnippetComponentController.prototype.cancel = function() {
+        this.onCancel();
+    };
+
+    // Initialize ace editor with its relevant settings.
+    editSnippetComponentController.prototype.codeEditorInit = function() {
+        let vm = this,
+            language = vm.data.language,
+            editorMode = 'ace/mode/' + language;
+
+        vm.snippetCode = ace.edit('edit-code-box');
+        vm.snippetCode.setTheme('ace/theme/textmate');
+        vm.snippetCode.$blockScrolling = Infinity;
+        vm.snippetCode.setValue(vm.data.code, -1);
+
+        // set the language for the code editor box
+        if (language == 'js') {
+            editorMode = 'ace/mode/javascript';
+        }
+
+        vm.snippetCode.getSession().setMode(editorMode);
+    };
+
+    // Appends the selected language to the filename.
+    editSnippetComponentController.prototype.checkTitle = function() {
+        let vm = this,
+            title = vm.data.title ? vm.data.title : '',
+            language = vm.data.language,
+            namePart = title.substring(0, title.indexOf('.'));
+
+        if (namePart === '' && title.indexOf('.') !== -1) {
+            vm.data.title =  'myfilename.' + language;
+        } else if (namePart === '' && !!title) {
+            vm.data.title +=  '.' + language;
+        }
+    };
+
+    /**
+    * Adds the clicked label to the list of selected.
+    *
+    * @param item {Number}
+    * @param list {array}
     */
-    editSnippetComponentController.prototype.getLabels = function() {
-        var vm = this,
-            result = [],
-            isSelected;
+    editSnippetComponentController.prototype.toggle = function(item, list) {
+        let vm = this,
+            idx = list.indexOf(item);
 
-        return result = vm.labels.filter(function(obj) {
-            isSelected = false;
+        if (idx > -1) {
+            list.splice(idx, 1);
+        } else {
+            list.push(item);
+        }
 
-            $(vm.selectedLabels).each(function(i, id) {
-                if (obj.id === id) {
+        vm.isInitial = false;
+    };
+
+    /**
+    * Pre-selects the labels for the snippet.
+    *
+    * @param itemId {Number}
+    * @param list {array}
+    * @return {boolean}
+    */
+    editSnippetComponentController.prototype.exists = function(itemId, list) {
+        let vm = this;
+
+        if (vm.isInitial) {
+            var isSelected = false;
+
+            $(vm.snippet.labels).each(function(i, id) {
+                if (parseInt(id) === itemId) {
                     isSelected = true;
                 }
             });
 
             return isSelected;
-        });
+        }
+
+        return list.indexOf(itemId) > -1;
+    };
+
+    editSnippetComponentController.prototype.isIndeterminate = function() {
+        let vm = this;
+
+        return (vm.selectedLabels.length !== 0 && vm.selectedLabels.length !== vm.labelIds.length);
+    };
+
+    editSnippetComponentController.prototype.isChecked = function() {
+        let vm = this;
+
+        if (vm.isInitial) {
+            return vm.snippet.labels.length === vm.labelIds.length;
+        }
+
+        return vm.selectedLabels.length === vm.labelIds.length;
+    };
+
+    editSnippetComponentController.prototype.toggleAll = function() {
+        let vm = this;
+
+        if (vm.selectedLabels.length === vm.labelIds.length) {
+            vm.selectedLabels = [];
+        } else if (vm.selectedLabels.length === 0 || vm.selectedLabels.length > 0) {
+            vm.selectedLabels = vm.labelIds.slice(0);
+        }
+
+        vm.isInitial = false;
+    };
+
+    editSnippetComponentController.prototype.changedLanguage = function() {
+        let vm = this,
+            title = vm.data.title,
+            language = vm.data.language,
+            namePart = title.substring(0, title.indexOf('.')),
+            editorMode = 'ace/mode/' + language;
+
+        if (namePart === '' && title === '') {
+            namePart = 'myfilename';
+        } else if (title.indexOf('.') === -1) {
+            namePart = title;
+        }
+
+        // apply the edited language to the title
+        vm.data.title = namePart + '.' + language;
+
+        // set the language for the code editor box
+        if (language == 'js') {
+            editorMode = 'ace/mode/javascript';
+        }
+
+        vm.snippetCode.getSession().setMode(editorMode);
     };
 }());
 
@@ -1358,7 +1404,8 @@
             controllerAs: 'lbc',
             bindings: {
                 onCreate: '&',
-                label: '<'
+                afterEdit: '&',
+                selectedLabel: '<'
             }
         });
 
@@ -1368,28 +1415,34 @@
         // Variables
         var vm = this;
 
-        vm.labelColor = '#5CAEE9';
+        vm.label = {
+            title: '',
+            color: '#5CAEE9'
+        };
+
+        vm.isEditing = false;
 
         // Dependencies
         vm.$mdToast = $mdToast;
 
         // Events
         $scope.$on('clearLabelsModal', function(event, args) {
-            //vm.labelTitle = '';
+            vm.isEditing = false;
+            vm.label = {};
+
+            // Clear form.
             $scope.form.$setPristine();
+            $scope.form.$setUntouched();
         });
 
         $scope.$on('editLabel', function(event, args) {
-            //$scope.form.$setPristine();
-            vm.labelTitle = args.title;
-            vm.labelColor = args.color;
+            vm.isEditing = true;
+
+            vm.label = angular.copy(vm.selectedLabel);
         });
 
         vm.saveLabel = () => {
-            var newLabel = {
-                    title: vm.labelTitle,
-                    color: vm.labelColor
-                };
+            var newLabel = vm.label;
 
             if (!newLabel.title || !newLabel.color) {
                 return;
@@ -1403,7 +1456,12 @@
                     }
 
                     // set the userId of the new snippet equal to the current user id
-                    newLabel.userId = user.id;
+                    //newLabel.userId = user.id;
+
+                    if (vm.isEditing) {
+                        vm.updateLabel(newLabel);
+                        return;
+                    }
 
                     LabelService.setLabels(newLabel)
                         .then(function(data) {
@@ -1420,6 +1478,23 @@
                     vm.showError('Could not fetch user id.');
                 });
 
+        };
+
+        vm.updateLabel = (label) => {
+
+            LabelService.edit(label)
+                .then(function(data) {
+                    $('#new-label-modal').remodal().close();
+
+                    // call filterUserLabels function from parent controller in order to update the shown labels
+                    vm.onCreate();
+
+                    // call filterUserSnippets function from parent controller in order to update the shown labels
+                    vm.afterEdit();
+                })
+                .catch(function(err) {
+                    vm.showError('Could not create a label.');
+                });
         };
     }
 
@@ -1664,6 +1739,7 @@
     */
     newSnippetComponentController.prototype.getSelectedLabels = function() {
         var vm = this,
+            labelsArray = [],
             result = [],
             isSelected;
 
@@ -1671,17 +1747,16 @@
             return [];
         }
 
-        return result = vm.labels.filter(function(obj) {
-            isSelected = false;
+        labelsArray = vm.labels.filter(function(obj) {
 
             $(vm.selectedLabels).each(function(i, id) {
                 if (obj.id === id) {
-                    isSelected = true;
+                    result.push(id);
                 }
             });
-
-            return isSelected;
         });
+
+        return result;
     };
 })();
 
@@ -1690,9 +1765,34 @@
 
     angular.module('app.components.snippet', ['app.directives.editor-value']).component('snippetComponent', {
         templateUrl: 'app/shared/components/snippet/snippet.component.html',
+        controller: snippetComponentController,
         controllerAs: 'scc',
         bindings: {
             snippet: '<'
         }
     });
+
+    snippetComponentController.$inject = ['$timeout', 'LabelService'];
+
+    function snippetComponentController($timeout, LabelService) {
+        let vm = this;
+
+        vm.labels = [];
+
+        $timeout(function() {
+            $(vm.snippet.labels).each(function(i, id) {
+                let labelContainer = {
+                    id: id
+                };
+
+                LabelService.getOne(labelContainer)
+                    .then(function(res) {
+                        vm.labels.push(res);
+                    })
+                    .catch(function(err) {
+                        console.log(err);
+                    });
+            });
+        }, 0);
+    }
 })();

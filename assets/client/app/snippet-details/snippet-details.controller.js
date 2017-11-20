@@ -2,27 +2,23 @@
     'use strict';
 
     angular.module('app.snippet-details', ['app.components.edit-snippet', 'app.services.localStorage',
-                                           'app.services.snippet', 'app.services.starred'])
+                                           'app.services.snippet', 'app.services.starred', 'ngMaterial'])
            .controller('SnippetDetailsController', SnippetDetailsController);
 
     SnippetDetailsController.$inject = ['$stateParams', '$location', '$scope', '$filter', '$mdSidenav', '$timeout',
-                                        'LocalStorage', 'SnippetService', 'StarredService'];
+                                        '$mdToast', 'LocalStorage', 'SnippetService', 'StarredService'];
 
-    function SnippetDetailsController($stateParams, $location, $scope, $filter, $mdSidenav, $timeout, LocalStorage,
-                                      SnippetService, StarredService) {
+    function SnippetDetailsController($stateParams, $location, $scope, $filter, $mdSidenav, $timeout, $mdToast,
+                                      LocalStorage, SnippetService, StarredService) {
         var vm = this;
 
         // Dependencies
         vm.$stateParams = $stateParams;
         vm.$filter = $filter;
         vm.SnippetService = SnippetService;
+        vm.$mdToast = $mdToast;
 
         // Variables
-        vm.model = {
-            snippets: {},
-            starred: {}
-        };
-
         vm.editingSnippet = false;
 
         vm.isEditing = () => {
@@ -84,13 +80,12 @@
                 vm.snippet.isStarred = true;
             }
 
-            SnippetService.star(data)
-                .then(function() {
-                    console.log('Starred the snippet successfully!');
+            SnippetService.star(vm.snippet)
+                .then(function(res) {
+                    vm.showToast(res.notice, 'success');
                 })
                 .catch(function(err) {
-                    // TODO: show error
-                    console.log(err);
+                    vm.showToast(err, 'error');
                 });
         };
 
@@ -122,6 +117,25 @@
             }, 0);
         };
     }
+
+    /**
+    * Show toaster.
+    *
+    * @param {String} message
+    * @param {String} toastClass
+    */
+    SnippetDetailsController.prototype.showToast = function(message, toastClass) {
+        var vm = this,
+            prefix = toastClass === 'error' ? 'Error: ' : 'Success: ';
+
+        vm.$mdToast.show(
+            vm.$mdToast.simple()
+                .textContent(prefix + message)
+                .position('bottom right')
+                .toastClass(toastClass)
+                .hideDelay(3000)
+        );
+    };
 
     // Get the data related to the opened snippet.
     SnippetDetailsController.prototype.filterSelectedSnippet = function() {
