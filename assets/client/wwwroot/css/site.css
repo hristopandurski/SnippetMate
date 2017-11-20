@@ -51,7 +51,7 @@ header .search-bar-container .icon-search {
 .logo {
   width: 35px;
   height: 17px;
-  margin-left: 10px;
+  margin-right: 10px;
 }
 
 .main-container {
@@ -71,6 +71,7 @@ header .search-bar-container .icon-search {
   height: 40px;
   border-top: 1px solid #212121;
   border-bottom: 1px solid #0a0c0e;
+  border-left: 2px solid #181818;
   color: #fff;
   cursor: pointer;
 }
@@ -103,13 +104,24 @@ header .search-bar-container .icon-search {
 }
 
 .left-panel .filter-selected {
-  background-color: #fff;
-  color: #000;
+  border-left: 2px solid #5CAEE9;
 }
 
-.left-panel .filter-selected:hover {
-  background-color: #fff;
-  color: #000;
+.left-panel .labels .icon-edit {
+  display: none;
+  max-width: 15px;
+  margin-right: 10px;
+  color: lightgray;
+}
+
+.left-panel .labels:hover .icon-edit {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.left-panel .labels:hover .icon-edit:hover {
+  color: #fff;
 }
 
 .left-panel .new-snippet-filter {
@@ -665,7 +677,7 @@ md-toolbar:not(.md-menu-toolbar) {
 .label-icon {
   height: 15px;
   width: 15px;
-  border-radius: 4px;
+  border-radius: 50%;
   display: inline-block;
   float: left;
 }
@@ -779,6 +791,90 @@ input.md-input:-webkit-autofill:active {
   width: 22px;
 }
 
+.remodal-wrapper .remodal {
+  padding: 0;
+}
+
+.new-labels-container {
+  padding: 0 20px 20px 20px;
+}
+
+.new-labels-container div .label-checker {
+  display: none;
+}
+
+.new-labels-container md-checkbox .md-label {
+  color: #727373;
+  margin-top: 3px;
+}
+
+.new-labels-container .label-checkboxes {
+  margin-left: 20px;
+  width: 100%;
+}
+
+md-checkbox.md-default-theme.md-checked .md-icon,
+md-checkbox.md-checked .md-icon {
+  background: #5CAEE9;
+}
+
+md-checkbox.md-default-theme.md-checked .md-ink-ripple,
+md-checkbox.md-checked .md-ink-ripple {
+  color: #5CAEE9;
+}
+
+.new-snippet-header {
+  background-color: #F5F5F5;
+  padding: 20px;
+  border-bottom: 1px solid #ccc;
+}
+
+.description-container {
+  padding: 20px;
+}
+
+.description-container .description-warn {
+  color: #727373;
+  margin-bottom: 10px;
+}
+
+.description-textarea {
+  width: 100%;
+  resize: none;
+  color: #727373;
+}
+
+.new-snippet-body {
+  border-top: 1px solid #ccc;
+  padding: 20px;
+}
+
+.new-snippet-body .snippet-title {
+  width: 150px;
+  margin-right: 5px;
+}
+
+.new-snippet-body .snippet-title-dropdown {
+  padding: 4px 7px 4px 1px;
+}
+
+.new-snippet-body .new-snippet-code {
+  width: 100%;
+  min-height: 200px;
+  margin-top: 15px;
+  overflow: hidden;
+}
+
+.new-snippet-footer {
+  background-color: #F5F5F5;
+  padding: 20px;
+  border-top: 1px solid #ccc;
+}
+
+.new-snippet-footer .cancel-btn {
+  padding: 5px 15px;
+}
+
 snippet-component {
   width: 100%;
 }
@@ -848,83 +944,4 @@ snippet-component md-card md-card-footer {
   font-family: consolas;
   padding-top: 10px;
   overflow: hidden;
-}
-
-.remodal-wrapper .remodal {
-  padding: 0;
-}
-
-.new-labels-container {
-  padding: 0 20px 20px 20px;
-}
-
-.new-labels-container div .label-checker {
-  display: none;
-}
-
-.new-labels-container md-checkbox .md-label {
-  color: #727373;
-  margin-top: 3px;
-}
-
-.new-labels-container .label-checkboxes {
-  margin-left: 20px;
-  width: 100%;
-}
-
-md-checkbox.md-default-theme.md-checked .md-icon,
-md-checkbox.md-checked .md-icon {
-  background: #5CAEE9;
-}
-
-md-checkbox.md-default-theme.md-checked .md-ink-ripple,
-md-checkbox.md-checked .md-ink-ripple {
-  color: #5CAEE9;
-}
-
-.new-snippet-header {
-  background-color: #F5F5F5;
-  padding: 20px;
-  border-bottom: 1px solid #ccc;
-}
-
-.description-container {
-  padding: 20px;
-}
-
-.description-textarea {
-  width: 100%;
-  resize: none;
-  color: #727373;
-}
-
-.new-snippet-body {
-  border-top: 1px solid #ccc;
-  padding: 20px;
-}
-
-.new-snippet-body .snippet-title {
-  width: 150px;
-  margin-right: 5px;
-}
-
-.new-snippet-body .snippet-title-dropdown {
-  padding: 4px 7px 4px 1px;
-}
-
-.new-snippet-body .new-snippet-code {
-  width: 100%;
-  min-height: 200px;
-  margin-top: 15px;
-  overflow: hidden;
-}
-
-.new-snippet-footer {
-  background-color: #F5F5F5;
-  padding: 20px;
-  border-top: 1px solid #ccc;
-}
-
-.new-snippet-footer .cancel-btn {
-  padding: 5px 15px;
 }

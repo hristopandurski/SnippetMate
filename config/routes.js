@@ -51,6 +51,7 @@ module.exports.routes = {
 
     'GET /labels/get': 'LabelsController.get',
     'POST /labels/create': 'LabelsController.create',
+    'PUT /labels/edit': 'LabelsController.edit',
 
     '/*': {view: 'index', skipAssets: true}
 

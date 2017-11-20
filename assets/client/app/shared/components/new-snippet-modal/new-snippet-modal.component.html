@@ -3,10 +3,11 @@
         <span class="font-md">New Snippet</span>
     </div>
     <section class="description-container">
-        <textarea name="description" class="form-control font-sm description-textarea base-input"
+        <span class="flex font-xs description-warn">140 chars max</span>
+        <textarea name="description" class="form-control font-sm description-textarea base-input" ng-maxlength="140"
                   placeholder="Describe this snippet" rows="3" ng-model="nsc.description" required></textarea>
         <span ng-show="form.description.$invalid && !form.description.$pristine" class="flex align-center error-message font-xs">
-            Description is required
+            Description field is not populated correcttly
         </span>
     </section>
     <section class="new-labels-container">

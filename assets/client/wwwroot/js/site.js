@@ -210,6 +210,16 @@
             $('#new-label-modal').remodal(modalOptions).open();
         };
 
+        vm.editLabel = (ev) => {
+            let index = $(ev.target).attr('data-index'),
+                selectedLabel = vm.labels[index];
+
+            $scope.$broadcast('editLabel', selectedLabel);
+            $('#new-label-modal').remodal(modalOptions).open();
+
+            ev.stopPropagation();
+        };
+
         vm.signOut = () => {
             AuthenticationService.Logout()
                 .then(function() {
@@ -524,50 +534,6 @@
         };
     });
 })();
-
-(function() {
-    'use strict';
-
-    angular.module('app.components.snippet').filter('dateRange', function() {
-        return function(date) {
-            var fromDate = new Date(Date.parse(date)),
-                toDate = new Date(),
-                dayDifference = Math.floor((toDate - fromDate) / (1000 * 60 * 60 * 24)),
-                hrsDifference = Math.floor((toDate - fromDate) / (1000 * 60 * 60)),
-                minDifference = Math.floor((toDate - fromDate) / (1000 * 60)),
-                diff = 0;
-
-            // calculate whats the difference between the snippet's creation and now
-            if (dayDifference <= 0) {
-                if (hrsDifference <= 0) {
-                    if (minDifference <= 0) {
-                        diff = ' just now';
-                    } else {
-                        if (minDifference === 1) {
-                            diff = minDifference + ' minute ago';
-                        } else {
-                            diff = minDifference + ' minutes ago';
-                        }
-                    }
-                } else {
-                    if (hrsDifference === 1) {
-                        diff = hrsDifference + ' hour ago';
-                    } else {
-                        diff = hrsDifference + ' hours ago';
-                    }
-                }
-            } else {
-                if (dayDifference === 1) {
-                    diff = dayDifference + ' day ago';
-                } else {
-                    diff = dayDifference + ' days ago';
-                }
-            }
-
-            return diff;
-        };
-    });
-}());
 
 (function() {
     'use strict';
@@ -1111,6 +1077,50 @@
 (function() {
     'use strict';
 
+    angular.module('app.components.snippet').filter('dateRange', function() {
+        return function(date) {
+            var fromDate = new Date(Date.parse(date)),
+                toDate = new Date(),
+                dayDifference = Math.floor((toDate - fromDate) / (1000 * 60 * 60 * 24)),
+                hrsDifference = Math.floor((toDate - fromDate) / (1000 * 60 * 60)),
+                minDifference = Math.floor((toDate - fromDate) / (1000 * 60)),
+                diff = 0;
+
+            // calculate whats the difference between the snippet's creation and now
+            if (dayDifference <= 0) {
+                if (hrsDifference <= 0) {
+                    if (minDifference <= 0) {
+                        diff = ' just now';
+                    } else {
+                        if (minDifference === 1) {
+                            diff = minDifference + ' minute ago';
+                        } else {
+                            diff = minDifference + ' minutes ago';
+                        }
+                    }
+                } else {
+                    if (hrsDifference === 1) {
+                        diff = hrsDifference + ' hour ago';
+                    } else {
+                        diff = hrsDifference + ' hours ago';
+                    }
+                }
+            } else {
+                if (dayDifference === 1) {
+                    diff = dayDifference + ' day ago';
+                } else {
+                    diff = dayDifference + ' days ago';
+                }
+            }
+
+            return diff;
+        };
+    });
+}());
+
+(function() {
+    'use strict';
+
     angular.module('app.utils.isAuthenticated', ['app.services.user']).service('IsAuthenticated', IsAuthenticated);
 
     IsAuthenticated.$inject = ['UserService', '$location'];
@@ -1347,14 +1357,14 @@
             controller: labelsComponentController,
             controllerAs: 'lbc',
             bindings: {
-                onCreate: '&'
+                onCreate: '&',
+                label: '<'
             }
         });
 
     labelsComponentController.$inject = ['$scope', '$mdToast', 'UserService', 'LabelService'];
 
     function labelsComponentController($scope, $mdToast, UserService, LabelService) {
-
         // Variables
         var vm = this;
 
@@ -1365,8 +1375,14 @@
 
         // Events
         $scope.$on('clearLabelsModal', function(event, args) {
-            vm.labelTitle = '';
+            //vm.labelTitle = '';
             $scope.form.$setPristine();
+        });
+
+        $scope.$on('editLabel', function(event, args) {
+            //$scope.form.$setPristine();
+            vm.labelTitle = args.title;
+            vm.labelColor = args.color;
         });
 
         vm.saveLabel = () => {

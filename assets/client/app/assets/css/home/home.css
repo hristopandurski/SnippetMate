@@ -51,7 +51,7 @@ header .search-bar-container .icon-search {
 .logo {
   width: 35px;
   height: 17px;
-  margin-left: 10px;
+  margin-right: 10px;
 }
 
 .main-container {
@@ -71,6 +71,7 @@ header .search-bar-container .icon-search {
   height: 40px;
   border-top: 1px solid #212121;
   border-bottom: 1px solid #0a0c0e;
+  border-left: 2px solid #181818;
   color: #fff;
   cursor: pointer;
 }
@@ -103,13 +104,24 @@ header .search-bar-container .icon-search {
 }
 
 .left-panel .filter-selected {
-  background-color: #fff;
-  color: #000;
+  border-left: 2px solid #5CAEE9;
 }
 
-.left-panel .filter-selected:hover {
-  background-color: #fff;
-  color: #000;
+.left-panel .labels .icon-edit {
+  display: none;
+  max-width: 15px;
+  margin-right: 10px;
+  color: lightgray;
+}
+
+.left-panel .labels:hover .icon-edit {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.left-panel .labels:hover .icon-edit:hover {
+  color: #fff;
 }
 
 .left-panel .new-snippet-filter {

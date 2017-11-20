@@ -1,12 +1,12 @@
 <header class="flex align-center justify-space-around">
     <div class="flex row align-center">
         <div class="header-name flex">
-            <a href='/#'>SnippetMate <img src="../app/assets/img/icon.png" class="logo" /></a>
+            <a href='/#'><img src="../app/assets/img/icon.png" class="logo" /> SnippetMate</a>
         </div>
         <div class="flex">
             <div class="search-bar-container">
                 <input type="text" class="font-xs form-control search-snippets" ng-model="searchKeyword"
-                    placeholder="Search by keyword"/>
+                       placeholder="Search by keyword"/>
                 <span class="icon-search font-md"></span>
             </div>
         </div>
@@ -45,6 +45,9 @@
         <div class="labels font-sm flex align-center" ng-repeat="label in vm.labels" ng-click="vm.selectFilter($event)">
             <span class="left-panel-icon label-icon" ng-style="{'background-color': label.color}"></span>
             <span hide-md hide-sm hide-xs>{{ label.title }}</span>
+            <div class="flex justify-end">
+                <span class="flex justify-end icon-edit font-sm" data-index="{{$index}}" ng-click="vm.editLabel($event)"></span>
+            </div>
         </div>
     </section>
     <section class="right-panel perfect-scrollbar-container">
@@ -62,4 +65,4 @@
     <new-snippet-component on-create="vm.filterUserSnippets()"></new-snippet-component>
 </section>
 
-<labels-component on-create="vm.filterUserLabels()"></labels-component>
+<labels-component on-create="vm.filterUserLabels()" selected-label="vm.selectedLabel"></labels-component>

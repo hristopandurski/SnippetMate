@@ -40,6 +40,11 @@ md-checkbox.md-checked .md-ink-ripple {
   padding: 20px;
 }
 
+.description-container .description-warn {
+  color: #727373;
+  margin-bottom: 10px;
+}
+
 .description-textarea {
   width: 100%;
   resize: none;

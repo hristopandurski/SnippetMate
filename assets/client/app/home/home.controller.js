@@ -153,6 +153,20 @@
             $('#new-label-modal').remodal(modalOptions).open();
         };
 
+        vm.editLabel = (ev) => {
+            let index = $(ev.target).attr('data-index');
+
+            vm.selectedLabel = vm.labels[index];
+
+            // Using $timeout beacuse angular has not updated the selected-label value on the labels-modal-component.
+            $timeout(function() {
+                $scope.$broadcast('editLabel');
+                $('#new-label-modal').remodal(modalOptions).open();
+            }, 0);
+
+            ev.stopPropagation();
+        };
+
         vm.signOut = () => {
             AuthenticationService.Logout()
                 .then(function() {

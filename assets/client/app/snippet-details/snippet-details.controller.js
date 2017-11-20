@@ -12,12 +12,12 @@
                                       SnippetService, StarredService) {
         var vm = this;
 
-        // dependencies
+        // Dependencies
         vm.$stateParams = $stateParams;
         vm.$filter = $filter;
         vm.SnippetService = SnippetService;
 
-        // global variables
+        // Variables
         vm.model = {
             snippets: {},
             starred: {}

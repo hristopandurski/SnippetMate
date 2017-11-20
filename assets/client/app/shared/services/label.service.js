@@ -42,5 +42,23 @@
 
             return deferred.promise;
         };
+
+        self.edit = (data) => {
+            var deferred = $q.defer();
+
+            $http({
+                method: 'PUT',
+                url: '/labels/edit',
+                params: data
+            })
+            .then(function(res) {
+                return deferred.resolve(res.data);
+            })
+            .catch(function(err) {
+                return deferred.reject(err);
+            });
+
+            return deferred.promise;
+        };
     };
 }());

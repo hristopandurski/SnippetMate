@@ -1,25 +1,25 @@
 <section class="remodal" id="new-label-modal" data-remodal-id="new-label-modal">
     <form name="form" ng-submit="lbc.saveLabel()" role="form" novalidate>
         <div class="new-snippet-header flex row align-center">
-            <span class="font-md">New Label</span>
+            <span class="font-md">{{lbc.isEditing ? 'Edit Label' : 'New Label'}}</span>
         </div>
         <div class="labels-container flex column">
             <div class="label-title-container flex justify-start">
                 <input type="text" name="title" class="form-control font-xs base-input label-title"
-                    placeholder="Label title"  ng-model="lbc.labelTitle" required/>
+                    placeholder="Label title"  ng-model="lbc.label.title" required/>
                 <span ng-show="form.title.$invalid && !form.title.$pristine" class="flex align-center error-message font-xs">
                     Title is required
                 </span>
             </div>
             <div layout="row" layout-sm="column" class="label-color-container">
-                <color-picker ng-model="lbc.labelColor"></color-picker>
+                <color-picker ng-model="lbc.label.color"></color-picker>
                 <input type="text" class="form-control font-xs base-input label-color" readonly
-                    ng-style="{'background-color': lbc.labelColor}">
+                    ng-style="{'background-color': lbc.label.color}">
             </div>
         </div>
         <div class="new-snippet-footer flex row justify-end">
             <button data-remodal-action="cancel" class="btn form-control cancel-btn">Cancel</button>
-            <button class="btn save-btn" ng-class="{'btn-disabled': form.$invalid}" ng-disabled="form.$invalid">Save</button>
+            <button class="btn save-btn" ng-class="{'btn-disabled': form.$invalid}" ng-disabled="form.$invalid">{{lbc.isEditing ? 'Update' : 'Save'}}</button>
         </div>
     </form>
 </div>
