@@ -42,7 +42,7 @@
                 </svg>
             </div>
         </div>
-        <div class="labels font-sm flex align-center" ng-repeat="label in vm.labels" ng-click="vm.selectFilter($event)">
+        <div class="labels font-sm flex align-center" ng-repeat="label in vm.labels" ng-click="vm.selectFilter($event)" data-id="{{label.id}}">
             <span class="left-panel-icon label-icon" ng-style="{'background-color': label.color}"></span>
             <span hide-md hide-sm hide-xs>{{ label.title }}</span>
             <div class="flex justify-end">

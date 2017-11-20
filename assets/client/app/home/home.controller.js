@@ -72,6 +72,7 @@
         vm.selectFilter = (event) => {
             let $tab = $(event.delegateTarget),
                 value = $tab.text().trim(),
+                selectedItem = $tab.attr('data-id'),
                 result = [];
 
             if ($tab.hasClass('filter-selected')) {
@@ -104,12 +105,8 @@
 
                             // Filter depending on the selected label
                             $(vm.snippets).each(function(i, item) {
-                                $(item.labels).each(function(index, obj) {
-
-                                    // parse the stringified JSON
-                                    item.labels[index] = JSON.parse(obj);
-
-                                    if (item.labels[index].title === value) {
+                                $(item.labels).each(function(z, obj) {
+                                    if (obj === selectedItem) {
                                         result.push(item);
                                     }
                                 });
