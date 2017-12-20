@@ -8,7 +8,9 @@ Application which helps developers store their code snippets.
 
 ## Project setup
 
-*SnippetMate* is a submodule in the SnippetMate-Server repo. To initialize the client, do the following in the root folder:
+The project utilizes *submodules* which deliver the front-end repo. This architecture differentiates from the normal Sails setup but provides a cleaner separation between the backend and the frontend side. The latest frontned master repo is placed in ```./assets/client```.
+
+To pull the latest client, do the following in the root folder:
 
 1. ```git submodule init``` - initializes modules
 1. ```git submodule update``` - pulls the latest
